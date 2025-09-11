@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use gtk::gio;
+use gtk::glib;
 use gtk::prelude::*;
 
 use crate::gui::chat::MessageBubble;
@@ -43,13 +44,16 @@ fn widget_viewport_chat(app: &gtk::Application) -> impl IsA<gtk::Widget> {
         .build();
 
     // Create a `ListBox` and add labels with integers from 0 to 100
-    let list_box = gtk::ListBox::builder()
+    let w_list_box = gtk::ListBox::builder()
         .vexpand(true)
         .selection_mode(gtk::SelectionMode::None)
+        .show_separators(false)
         .build();
-    for number in 0..=100 {
-        let msg = MessageBubble::new_text(format!("foo bar {number}"), chrono::Local::now());
-        list_box.append(&msg.widget(app));
+
+    for number in (0..=100).rev() {
+        let msg =
+            MessageBubble::new_text(format!("foo bar {number} years ago"), chrono::Local::now());
+        w_list_box.append(&msg.widget(app));
     }
     // TODO: automatically load the end
 
@@ -57,8 +61,10 @@ fn widget_viewport_chat(app: &gtk::Application) -> impl IsA<gtk::Widget> {
         .hscrollbar_policy(gtk::PolicyType::Never) // Disable horizontal scrolling
         .min_content_height(400)
         .min_content_width(400)
-        .child(&list_box)
+        .child(&w_list_box)
         .build();
+
+    // TODO: scroll to the bottom
 
     vp_chat.append(&w_chat_interface);
     vp_chat.append(&widget_input_area(app));
