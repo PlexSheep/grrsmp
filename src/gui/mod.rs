@@ -1,21 +1,21 @@
+use gtk::gio;
 use gtk::prelude::*;
-use gtk::{
-    Application, ApplicationWindow, Label, ListBox, Orientation, Overflow, PolicyType,
-    PopoverMenuBar, ScrolledWindow, Widget, gio,
-};
 
+use crate::gui::chat::MessageBubble;
 use crate::utils::version;
 
-pub(crate) fn start_gui(app: &Application) {
+mod chat;
+
+pub(crate) fn start_gui(app: &gtk::Application) {
     let window_content = gtk::Box::builder()
-        .overflow(Overflow::Hidden)
-        .orientation(Orientation::Vertical)
+        .overflow(gtk::Overflow::Hidden)
+        .orientation(gtk::Orientation::Vertical)
         .build();
 
     window_content.append(&widget_viewport_chat(app));
 
     // Create a window and set the title
-    let window = ApplicationWindow::builder()
+    let window = gtk::ApplicationWindow::builder()
         .application(app)
         .title("GRRRRRRRR")
         .default_width(600)
@@ -28,20 +28,21 @@ pub(crate) fn start_gui(app: &Application) {
     window.present();
 }
 
-fn widget_viewport_chat(_app: &Application) -> impl IsA<Widget> {
+fn widget_viewport_chat(app: &gtk::Application) -> impl IsA<gtk::Widget> {
     let vp_chat = gtk::Box::builder()
-        .orientation(Orientation::Vertical)
+        .orientation(gtk::Orientation::Vertical)
         .build();
 
     // Create a `ListBox` and add labels with integers from 0 to 100
-    let list_box = ListBox::new();
+    let list_box = gtk::ListBox::builder().vexpand(true).build();
     for number in 0..=100 {
-        let label = Label::new(Some(&number.to_string()));
-        list_box.append(&label);
+        let msg = MessageBubble::new_text(format!("foo bar {number}"), chrono::Local::now());
+        list_box.append(&msg.widget(app));
     }
+    // TODO: automatically load the end
 
-    let w_chat_interface = ScrolledWindow::builder()
-        .hscrollbar_policy(PolicyType::Never) // Disable horizontal scrolling
+    let w_chat_interface = gtk::ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Never) // Disable horizontal scrolling
         .min_content_width(360)
         .child(&list_box)
         .build();
@@ -51,7 +52,7 @@ fn widget_viewport_chat(_app: &Application) -> impl IsA<Widget> {
     vp_chat
 }
 
-fn widget_topbar(app: &Application) -> impl IsA<Widget> {
+fn widget_topbar(app: &gtk::Application) -> impl IsA<gtk::Widget> {
     // Create actions first
     let info_action = gio::SimpleAction::new("info", None);
     info_action.connect_activate(|_, _| {

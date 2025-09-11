@@ -5,6 +5,7 @@ use crate::gui::start_gui;
 
 pub(crate) const APP_ID: &str = "de.cscherr.grrrtk";
 
+mod chat;
 mod gui;
 mod utils;
 
