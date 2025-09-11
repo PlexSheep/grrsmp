@@ -6,6 +6,7 @@ use chrono::Local;
 use gtk::prelude::*;
 
 use crate::chat::Author;
+use crate::gui::label;
 
 #[derive(Debug, Clone)]
 pub(crate) enum MessageBubble {
@@ -37,24 +38,47 @@ impl MessageBubble {
     }
 
     pub(crate) fn widget(&self, app: &gtk::Application) -> impl IsA<gtk::Widget> {
-        let w_pane = gtk::Paned::builder()
+        let w_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
             .build();
         let w_meta_box = gtk::Box::builder()
-            .orientation(gtk::Orientation::Vertical)
+            .orientation(gtk::Orientation::Horizontal)
             .build();
-        let w_lbl_author = gtk::Label::new(Some(&self.meta().author.to_string()));
-        let w_lbl_time = gtk::Label::new(Some(&self.meta().time_received.to_string()));
-        let w_content = match self {
-            Self::Text(m) => m.widget(app),
-        };
+
+        let w_lbl_author = label(&self.meta().author);
+        let w_lbl_time = label(self.meta().time_received);
+        w_lbl_time.set_halign(gtk::Align::Start);
+        w_lbl_author.set_halign(gtk::Align::Start);
+        w_lbl_author.set_margin_end(20);
+
         w_meta_box.append(&w_lbl_author);
         w_meta_box.append(&w_lbl_time);
 
-        w_pane.set_start_child(Some(&w_meta_box));
-        w_pane.set_end_child(Some(&w_content));
+        w_meta_box.set_margin_top(8);
+        w_meta_box.set_margin_bottom(8);
+        w_meta_box.set_margin_start(12);
+        w_meta_box.set_margin_end(12);
 
-        w_content
+        let w_content = match self {
+            Self::Text(m) => m.widget(app),
+        };
+        w_content.set_margin_top(32);
+        w_content.set_halign(gtk::Align::Start);
+        w_content.set_margin_top(8);
+        w_content.set_margin_bottom(8);
+        w_content.set_margin_start(12);
+        w_content.set_margin_end(12);
+
+        w_box.append(&w_meta_box);
+        w_box.append(&w_content);
+
+        gtk::Frame::builder()
+            .child(&w_box)
+            .margin_top(8)
+            .margin_bottom(8)
+            .margin_start(16)
+            .margin_end(16)
+            .build()
     }
 }
 
