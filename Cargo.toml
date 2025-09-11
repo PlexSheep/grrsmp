@@ -1,0 +1,7 @@
+[package]
+name = "grrrtk"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gtk = { version = "0.10.0", package = "gtk4", features = ["gnome_48", "v4_18"] }
