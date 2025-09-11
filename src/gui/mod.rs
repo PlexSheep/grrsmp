@@ -1,21 +1,21 @@
 use std::fmt::Display;
 
 use gtk::gio;
-use gtk::glib;
 use gtk::prelude::*;
 
 use crate::gui::chat::MessageBubble;
+use crate::state::GrrStateRef;
 use crate::utils::{GUI_SPACING_MID, GUI_SPACING_XXLARGE, version};
 
 mod chat;
 
-pub(crate) fn start_gui(app: &gtk::Application) {
+pub(crate) fn start_gui(app: &gtk::Application, state: GrrStateRef) {
     let w_window_content = gtk::Box::builder()
         .overflow(gtk::Overflow::Hidden)
         .orientation(gtk::Orientation::Vertical)
         .build();
 
-    w_window_content.append(&widget_viewport_chat(app));
+    w_window_content.append(&widget_viewport_chat(app, state.clone()));
     let w_global_frame = gtk::Frame::builder()
         .child(&w_window_content)
         .margin_top(GUI_SPACING_XXLARGE)
@@ -30,7 +30,7 @@ pub(crate) fn start_gui(app: &gtk::Application) {
         .title("GRRRRRRRR")
         .default_width(600)
         .default_height(900)
-        .titlebar(&widget_topbar(app))
+        .titlebar(&widget_topbar(app, state.clone()))
         .child(&w_global_frame)
         .build();
 
@@ -38,7 +38,7 @@ pub(crate) fn start_gui(app: &gtk::Application) {
     window.present();
 }
 
-fn widget_viewport_chat(app: &gtk::Application) -> impl IsA<gtk::Widget> {
+fn widget_viewport_chat(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
     let vp_chat = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
@@ -67,12 +67,12 @@ fn widget_viewport_chat(app: &gtk::Application) -> impl IsA<gtk::Widget> {
     // TODO: scroll to the bottom
 
     vp_chat.append(&w_chat_interface);
-    vp_chat.append(&widget_input_area(app));
+    vp_chat.append(&widget_input_area(app, state.clone()));
 
     vp_chat
 }
 
-fn widget_topbar(app: &gtk::Application) -> impl IsA<gtk::Widget> {
+fn widget_topbar(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
     // Create actions first
     let info_action = gio::SimpleAction::new("info", None);
     info_action.connect_activate(|_, _| {
@@ -80,23 +80,27 @@ fn widget_topbar(app: &gtk::Application) -> impl IsA<gtk::Widget> {
     });
     app.add_action(&info_action);
 
-    let settings_action = gio::SimpleAction::new("settings", None);
-    settings_action.connect_activate(|_, _| {
-        println!("Settings clicked!");
-    });
-    app.add_action(&settings_action);
-
     let menu: gio::Menu = gio::Menu::new();
+    let menu_connection: gio::Menu = gio::Menu::new();
     let menu_settings: gio::Menu = gio::Menu::new();
     let menu_info: gio::Menu = gio::Menu::new();
 
+    menu_connection.append(Some("Connect"), Some("app.connection.connect"));
+    menu_connection.append(Some("Disconnect"), Some("app.connection.connect"));
+
     menu_settings.append(
         Some("Delete everything"),
-        Some("app.info.delete_everything"),
+        Some("app.settings.delete_everything"),
     );
+    menu_settings.append(
+        Some("Delete my Identity"),
+        Some("app.settings.delete_identity"),
+    );
+    menu_settings.append(Some("Delete chats"), Some("app.settings.delete_chats"));
 
     menu_info.append(Some(&version()), Some("app.info.version"));
 
+    menu.append_submenu(Some("Connection"), &menu_connection);
     menu.append_submenu(Some("Settings"), &menu_settings);
     menu.append_submenu(Some("Info"), &menu_info);
 
@@ -105,10 +109,24 @@ fn widget_topbar(app: &gtk::Application) -> impl IsA<gtk::Widget> {
     let head_bar = gtk::HeaderBar::new();
     head_bar.pack_start(&custom_menu_bar);
 
+    // NOTE: gtk automatically prefixes "app.", since we add the action to the app
+    let app_clone = app.clone();
+    let a_connection_connect = gio::SimpleAction::new("connection.connect", None);
+    a_connection_connect.connect_activate(move |_, _| {
+        dialog_connect(&app_clone, state.clone());
+    });
+    app.add_action(&a_connection_connect);
+
+    let a_settings_delete_everything = gio::SimpleAction::new("settings.delete_everything", None);
+    a_settings_delete_everything.connect_activate(|_, _| {
+        println!("Delete Everything!");
+    });
+    app.add_action(&a_settings_delete_everything);
+
     head_bar
 }
 
-fn widget_input_area(app: &gtk::Application) -> impl IsA<gtk::Widget> {
+fn widget_input_area(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
     let w_frame = gtk::Frame::builder()
         .margin_top(GUI_SPACING_MID)
         .margin_bottom(GUI_SPACING_MID)
@@ -203,6 +221,102 @@ fn widget_input_area(app: &gtk::Application) -> impl IsA<gtk::Widget> {
     w_frame.set_child(Some(&w_box));
 
     w_frame
+}
+
+fn dialog_connect(app: &gtk::Application, state: GrrStateRef) {
+    let win_dialog = gtk::Window::builder()
+        .modal(true)
+        .default_width(300)
+        .default_height(150)
+        .resizable(false)
+        .title("Establish a new Connection")
+        .build();
+
+    if let Some(window) = app.active_window() {
+        win_dialog.set_transient_for(Some(&window));
+    }
+
+    let w_box = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .spacing(GUI_SPACING_MID)
+        .margin_top(GUI_SPACING_MID)
+        .margin_bottom(GUI_SPACING_MID)
+        .margin_start(GUI_SPACING_MID)
+        .margin_end(GUI_SPACING_MID)
+        .build();
+
+    let w_grid = gtk::Grid::builder()
+        .row_spacing(6)
+        .column_spacing(12)
+        .build();
+
+    let w_host_entry = gtk::Entry::builder()
+        .placeholder_text("192.168.1.19")
+        .hexpand(true)
+        .build();
+
+    let w_port_entry = gtk::Entry::builder()
+        .placeholder_text("51673")
+        .text("51673")
+        .build();
+
+    let w_box_btn = gtk::Box::builder()
+        .orientation(gtk::Orientation::Horizontal)
+        .spacing(6)
+        .halign(gtk::Align::End)
+        .build();
+
+    let w_btn_cancel = gtk::Button::builder().label("Cancel").build();
+    let w_btn_accept = gtk::Button::builder().label("Connect").build();
+    w_btn_accept.add_css_class("suggested-action");
+
+    w_box_btn.append(&w_btn_cancel);
+    w_box_btn.append(&w_btn_accept);
+
+    w_grid.attach(&label("Host"), 0, 0, 1, 1);
+    w_grid.attach(&w_host_entry, 1, 0, 1, 1);
+    w_grid.attach(&label("Port"), 0, 1, 1, 1);
+    w_grid.attach(&w_port_entry, 1, 1, 1, 1);
+
+    let w_error = label("undefined error");
+    w_error.set_visible(false);
+    w_grid.attach(&w_error, 0, 2, 2, 1);
+
+    w_box.append(&w_grid);
+    w_box.append(&w_box_btn);
+
+    win_dialog.set_child(Some(&w_box));
+
+    let win_dialog_clone = win_dialog.clone();
+    w_btn_cancel.connect_clicked(move |_| {
+        win_dialog_clone.close();
+    });
+
+    let win_dialog_clone = win_dialog.clone();
+    let w_error_clone = w_error.clone();
+    w_btn_accept.connect_clicked(move |_| {
+        let raw_host = w_host_entry.text().to_string();
+        let raw_port = w_port_entry.text().to_string();
+
+        let handle_error = |reason: String| {
+            w_error_clone.set_text(&reason);
+            w_error_clone.set_visible(true);
+        };
+
+        match format!("{raw_host}:{raw_port}").parse::<std::net::SocketAddr>() {
+            Ok(remote) => {
+                let mut state = state.borrow_mut();
+                if let Err(e) = state.connect(remote) {
+                    handle_error(format!("Could not connect to remove: {e}"))
+                } else {
+                    win_dialog_clone.close();
+                }
+            }
+            Err(e) => handle_error(format!("Could not parse remote address: {e}")),
+        }
+    });
+
+    win_dialog.present();
 }
 
 #[inline]

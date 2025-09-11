@@ -10,4 +10,6 @@ pub(crate) fn version() -> String {
         env!("CARGO_PKG_NAME"),
         env!("CARGO_PKG_VERSION")
     )
+    .trim()
+    .to_string()
 }
