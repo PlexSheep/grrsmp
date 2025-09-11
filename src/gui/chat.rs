@@ -7,6 +7,10 @@ use gtk::prelude::*;
 
 use crate::chat::Author;
 use crate::gui::label;
+use crate::utils::GUI_SPACING_LARGE;
+use crate::utils::GUI_SPACING_MID;
+use crate::utils::GUI_SPACING_XLARGE;
+use crate::utils::GUI_SPACING_XXXLARGE;
 
 #[derive(Debug, Clone)]
 pub(crate) enum MessageBubble {
@@ -49,33 +53,33 @@ impl MessageBubble {
         let w_lbl_time = label(self.meta().time_received);
         w_lbl_time.set_halign(gtk::Align::Start);
         w_lbl_author.set_halign(gtk::Align::Start);
-        w_lbl_author.set_margin_end(20);
+        w_lbl_author.set_margin_end(GUI_SPACING_XLARGE);
 
         w_meta_box.append(&w_lbl_author);
         w_meta_box.append(&w_lbl_time);
 
-        w_meta_box.set_margin_top(8);
-        w_meta_box.set_margin_bottom(8);
-        w_meta_box.set_margin_start(12);
-        w_meta_box.set_margin_end(12);
+        w_meta_box.set_margin_top(GUI_SPACING_MID);
+        w_meta_box.set_margin_bottom(GUI_SPACING_MID);
+        w_meta_box.set_margin_start(GUI_SPACING_LARGE);
+        w_meta_box.set_margin_end(GUI_SPACING_LARGE);
 
         let w_content = match self {
             Self::Text(m) => m.widget(app),
         };
-        w_content.set_margin_top(32);
+        w_content.set_margin_top(GUI_SPACING_XXXLARGE);
         w_content.set_halign(gtk::Align::Start);
-        w_content.set_margin_top(8);
-        w_content.set_margin_bottom(8);
-        w_content.set_margin_start(12);
-        w_content.set_margin_end(12);
+        w_content.set_margin_top(GUI_SPACING_MID);
+        w_content.set_margin_bottom(GUI_SPACING_MID);
+        w_content.set_margin_start(GUI_SPACING_LARGE);
+        w_content.set_margin_end(GUI_SPACING_LARGE);
 
         w_box.append(&w_meta_box);
         w_box.append(&w_content);
 
         gtk::Frame::builder()
             .child(&w_box)
-            .margin_top(8)
-            .margin_bottom(8)
+            .margin_top(GUI_SPACING_MID)
+            .margin_bottom(GUI_SPACING_MID)
             .margin_start(16)
             .margin_end(16)
             .build()
