@@ -9,7 +9,6 @@ use grrsmp_core::chat::MessageText;
 use gtk::prelude::*;
 
 use crate::gui::label;
-use crate::state::GrrState;
 use crate::state::GrrStateRef;
 use crate::utils::GUI_SPACING_LARGE;
 use crate::utils::GUI_SPACING_MID;
@@ -44,7 +43,7 @@ impl MessageBubble {
             .orientation(gtk::Orientation::Horizontal)
             .build();
 
-        let w_lbl_author = label(&self.meta().author.username());
+        let w_lbl_author = label(self.meta().author.username());
         let w_lbl_time = label(self.meta().time_received);
         w_lbl_time.set_halign(gtk::Align::Start);
         w_lbl_author.set_halign(gtk::Align::Start);
@@ -80,7 +79,7 @@ impl MessageBubble {
 
     fn widget_content(&self, app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
         match &self.inner {
-            Message::Text(m) => Self::widget_content_text(app, state, &m),
+            Message::Text(m) => Self::widget_content_text(app, state, m),
         }
     }
 
