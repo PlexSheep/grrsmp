@@ -4,8 +4,6 @@ use chrono::{DateTime, Local};
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
 
-use crate::identity::Identity;
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Message {
     Text(MessageText),

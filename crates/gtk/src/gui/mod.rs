@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use grrsmp_core::identity::ContactIdentity;
-use grrsmp_core::identity::Identity;
 use gtk::gio;
 use gtk::prelude::*;
 
