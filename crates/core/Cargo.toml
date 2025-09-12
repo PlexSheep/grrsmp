@@ -17,4 +17,5 @@ rustls.workspace = true
 ed25519-dalek.workspace = true
 rand.workspace = true
 serde.workspace = true
+log.workspace = true
 thiserror = "2.0.16"
