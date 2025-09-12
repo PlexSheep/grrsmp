@@ -12,3 +12,6 @@ readme = "README.md"
 
 [dependencies]
 chrono.workspace = true
+ring.workspace = true
+rustls.workspace = true
+ed25519-dalek.workspace = true
