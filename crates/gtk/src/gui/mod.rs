@@ -54,7 +54,7 @@ fn widget_viewport_chat(app: &gtk::Application, state: GrrStateRef) -> impl IsA<
     for number in (0..=100).rev() {
         let msg =
             MessageBubble::new_text(format!("foo bar {number} years ago"), chrono::Local::now());
-        w_list_box.append(&msg.widget(app));
+        w_list_box.append(&msg.widget(app, state.clone()));
     }
     // TODO: automatically load the end
 

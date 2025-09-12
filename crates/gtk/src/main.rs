@@ -6,7 +6,6 @@ use crate::state::GrrState;
 
 pub(crate) const APP_ID: &str = "de.cscherr.grrrtk";
 
-mod chat;
 mod gui;
 mod state;
 mod utils;
