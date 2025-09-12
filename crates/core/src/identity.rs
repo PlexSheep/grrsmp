@@ -36,7 +36,7 @@ pub trait IdentityInner: std::fmt::Debug + Clone + PartialEq + Eq {
     fn username(&self) -> &str;
     fn fingerprint(&self) -> Fingerptint {
         let pkey_bytes = self.public_key().to_bytes();
-        sha3::Sha3_256::digest(&pkey_bytes)
+        sha3::Sha3_256::digest(pkey_bytes)
             .as_slice()
             .try_into()
             .expect("could not convert generic array of fingerprint into regular array")
@@ -139,7 +139,7 @@ impl IdentityInner for ContactIdentity {
     }
 
     fn public_key(&self) -> VerifyingKey {
-        self.public_key.clone()
+        self.public_key
     }
 }
 
