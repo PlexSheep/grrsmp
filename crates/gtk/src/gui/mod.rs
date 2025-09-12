@@ -27,12 +27,13 @@ pub(crate) fn start_gui(app: &gtk::Application, state: GrrStateRef) {
     // Create a window and set the title
     let window = gtk::ApplicationWindow::builder()
         .application(app)
-        .title("GRRRRRRRR")
+        .title(env!("CARGO_BIN_NAME").to_uppercase().replace("-", " "))
         .default_width(600)
         .default_height(900)
-        .titlebar(&widget_topbar(app, state.clone()))
         .child(&w_global_frame)
         .build();
+
+    window.set_titlebar(Some(&widget_topbar(app, state.clone())));
 
     // Present window
     window.present();

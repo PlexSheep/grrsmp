@@ -1,6 +1,4 @@
-[package]
-name = "grrsmp"
-version = "0.1.0"
+[workspace.package]
 edition = "2024"
 publish = false
 authors = ["Christoph J. Scherr <software@cscherr.de>"]
@@ -11,6 +9,14 @@ homepage = "https://github.com/PlexSheep/grrsmp"
 repository = "https://github.com/PlexSheep/grrsmp"
 
 
-[dependencies]
+[workspace.dependencies]
 chrono = "0.4.42"
 gtk = { version = "0.10.0", package = "gtk4"}
+grrsmp-core = {path = "./crates/core/"}
+
+[workspace]
+resolver = "3"
+members = [
+    "crates/core",
+    "crates/gtk",
+]

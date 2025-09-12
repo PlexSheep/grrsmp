@@ -1,0 +1,13 @@
+[package]
+name = "grrsmp-gtk"
+version = "0.1.0"
+edition = {workspace = true}
+publish = {workspace = true}
+license = {workspace = true}
+homepage = {workspace = true}
+repository = {workspace = true}
+
+[dependencies]
+grrsmp-core.workspace = true
+gtk.workspace = true
+chrono.workspace = true

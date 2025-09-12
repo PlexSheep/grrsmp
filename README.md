@@ -12,3 +12,14 @@
 
 `GRRSMP` - Great Routed Rust Secure Messaging Protocol - is a chat protocol with
 peer to peer connections, offering end to end encryption.
+
+## Development
+
+You need GTK Version 4.18 (or newer).
+
+On Debian stable (trixie):
+
+```
+apt-get update
+apt-get install -y libgtk-4-dev build-essential
+```

@@ -348,10 +348,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "grrsmp"
+name = "grrsmp-core"
 version = "0.1.0"
 dependencies = [
  "chrono",
+]
+
+[[package]]
+name = "grrsmp-gtk"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "grrsmp-core",
  "gtk4",
 ]
 

@@ -1,0 +1,14 @@
+[package]
+name = "grrsmp-core"
+version = "0.1.0"
+edition = {workspace = true}
+publish = {workspace = true}
+license = {workspace = true}
+homepage = {workspace = true}
+repository = {workspace = true}
+authors = ["Christoph J. Scherr <software@cscherr.de>"]
+description = "Secure Chat with P2P or relayed connections"
+readme = "README.md"
+
+[dependencies]
+chrono.workspace = true
