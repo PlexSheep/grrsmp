@@ -1,8 +1,5 @@
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{SigningKey, VerifyingKey};
-use sha3::Digest;
-
-pub type Fingerptint = [u8; 16];
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Trust {
@@ -12,13 +9,14 @@ pub enum Trust {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Identity {
-    User(UserIdentity),
-    Contact(ContactIdentity),
+pub struct Identity {
+    username: String,
+    public_key: VerifyingKey,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserIdentity {
+    identity: Identity,
     username: String,
     private_key: SigningKey,
     created: DateTime<Utc>,
@@ -26,118 +24,62 @@ pub struct UserIdentity {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ContactIdentity {
-    username: String,
-    public_key: VerifyingKey,
+    identity: Identity,
     trust: Trust,
     first_seen: DateTime<Utc>,
 }
 
-pub trait IdentityInner: std::fmt::Debug + Clone + PartialEq + Eq {
-    fn username(&self) -> &str;
-    fn fingerprint(&self) -> Fingerptint {
-        let pkey_bytes = self.public_key().to_bytes();
-        sha3::Sha3_256::digest(pkey_bytes)
-            .as_slice()
-            .try_into()
-            .expect("could not convert generic array of fingerprint into regular array")
-    }
-    fn public_key(&self) -> VerifyingKey;
-    #[cfg(debug_assertions)]
-    fn debug_identity() -> Self;
-}
-
 impl Identity {
-    pub fn new_user_identity(username: &str) -> Self {
-        Self::User(UserIdentity::new(username))
-    }
-
-    pub fn new_contact_identity(
-        username: &str,
-        public_key: VerifyingKey,
-        trust: Trust,
-        first_seen: DateTime<Utc>,
-    ) -> Self {
-        Self::Contact(ContactIdentity::new(
-            username, public_key, trust, first_seen,
-        ))
+    pub fn new(username: &str, public_key: VerifyingKey) -> Self {
+        Self {
+            username: username.to_string(),
+            public_key,
+        }
     }
 
     #[cfg(debug_assertions)]
     pub fn debug_identity() -> Self {
-        Identity::User(UserIdentity::debug_identity())
+        let key = generate_good_key();
+        let contact = ContactIdentity::new(
+            "DEBUG_CONTACT",
+            key.verifying_key(),
+            Trust::Unknown,
+            Utc::now(),
+        );
+        contact.identity
     }
 
     pub fn username(&self) -> &str {
-        match self {
-            Identity::User(id) => &id.username,
-            Identity::Contact(id) => &id.username,
-        }
-    }
-
-    pub fn is_local_user(&self) -> bool {
-        matches!(self, Self::User(_))
+        &self.username
     }
 }
 
 impl UserIdentity {
-    fn new(username: &str) -> Self {
+    pub fn new(username: &str) -> Self {
+        let key = generate_good_key();
+        let identity = Identity::new(username, key.verifying_key());
         Self {
+            identity,
             username: username.to_string(),
-            private_key: generate_good_key(),
+            private_key: key,
             created: Utc::now(),
         }
     }
 }
 
 impl ContactIdentity {
-    fn new(
+    pub fn new(
         username: &str,
         public_key: VerifyingKey,
         trust: Trust,
         first_seen: DateTime<Utc>,
     ) -> Self {
+        let identity = Identity::new(username, public_key);
         Self {
-            username: username.to_string(),
-            public_key,
+            identity,
             trust,
             first_seen,
         }
-    }
-}
-
-impl IdentityInner for UserIdentity {
-    fn username(&self) -> &str {
-        &self.username
-    }
-
-    #[cfg(debug_assertions)]
-    fn debug_identity() -> Self {
-        Self::new("DEBUG_IDENTITY_USER")
-    }
-
-    fn public_key(&self) -> VerifyingKey {
-        self.private_key.verifying_key()
-    }
-}
-
-impl IdentityInner for ContactIdentity {
-    fn username(&self) -> &str {
-        &self.username
-    }
-
-    #[cfg(debug_assertions)]
-    fn debug_identity() -> Self {
-        let public_key = generate_good_key().verifying_key();
-        Self::new(
-            "DEBUG_IDENTITY_CONCACT",
-            public_key,
-            Trust::Unknown,
-            Utc::now(),
-        )
-    }
-
-    fn public_key(&self) -> VerifyingKey {
-        self.public_key
     }
 }
 

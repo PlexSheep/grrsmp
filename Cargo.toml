@@ -16,8 +16,7 @@ grrsmp-core = {path = "./crates/core/"}
 ring = { version = "0.17.14", features = ["std"] }
 rustls = { version = "0.23.31", features = ["logging", "ring", "std"], default-features = false }
 ed25519-dalek = { version = "2.2.0", features = ["batch", "serde"] }
-sha3 = "0.10.8"
-rand = "0.9.2"
+rand = "0.8.5"
 
 [workspace]
 resolver = "3"
