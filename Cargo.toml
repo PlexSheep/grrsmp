@@ -1,7 +1,15 @@
 [package]
-name = "grrrtk"
+name = "grrsmp"
 version = "0.1.0"
 edition = "2024"
+publish = false
+authors = ["Christoph J. Scherr <software@cscherr.de>"]
+license = "AGPL-3.0-or-later"
+description = "Secure Chat with P2P or relayed connections"
+readme = "README.md"
+homepage = "https://github.com/PlexSheep/grrsmp"
+repository = "https://github.com/PlexSheep/grrsmp"
+
 
 [dependencies]
 chrono = "0.4.42"
