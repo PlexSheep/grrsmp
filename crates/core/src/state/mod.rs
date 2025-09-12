@@ -6,7 +6,7 @@ pub use known_identities::*;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{chat::Chat, net::connection::Connection};
+use crate::{chat::Chat, identity::UserIdentity, net::connection::Connection};
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct State {
@@ -14,6 +14,7 @@ pub struct State {
     pub chats: HashMap<VerifyingKey, Chat>,
     #[serde(skip)]
     pub active_connections: HashMap<SocketAddr, Connection>,
+    pub user_identity: Option<UserIdentity>,
 }
 
 impl State {}

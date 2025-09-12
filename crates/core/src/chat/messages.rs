@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use chrono::{DateTime, Local};
+use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
 
 use crate::identity::Identity;
@@ -12,7 +13,7 @@ pub enum Message {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MessageMeta {
-    pub author: Identity, // PERF: since each message owns it's author, i think we may have data duplication here?
+    pub author_key: VerifyingKey,
     pub time_received: chrono::DateTime<chrono::Local>,
     pub seen: bool,
 }
@@ -24,8 +25,12 @@ pub struct MessageText {
 }
 
 impl Message {
-    pub fn new_text(text: impl Display, time_received: DateTime<Local>) -> Self {
-        Self::Text(MessageText::new(text, time_received))
+    pub fn new_text(
+        text: impl Display,
+        time_received: DateTime<Local>,
+        author_key: VerifyingKey,
+    ) -> Self {
+        Self::Text(MessageText::new(text, time_received, author_key))
     }
 
     pub fn meta(&self) -> &MessageMeta {
@@ -36,20 +41,24 @@ impl Message {
 }
 
 impl MessageText {
-    pub fn new(text: impl Display, time_received: DateTime<Local>) -> Self {
+    pub fn new(
+        text: impl Display,
+        time_received: DateTime<Local>,
+        author_key: VerifyingKey,
+    ) -> Self {
         Self {
             text: text.to_string(),
-            meta: MessageMeta::new(time_received),
+            meta: MessageMeta::new(time_received, author_key),
         }
     }
 }
 
 impl MessageMeta {
-    pub fn new(time_received: DateTime<Local>) -> Self {
+    pub fn new(time_received: DateTime<Local>, author_key: VerifyingKey) -> Self {
         Self {
             time_received,
             seen: false,
-            author: Identity::debug_identity(),
+            author_key,
         }
     }
 }

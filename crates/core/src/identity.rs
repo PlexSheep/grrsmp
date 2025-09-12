@@ -11,8 +11,8 @@ pub enum Trust {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Identity {
-    username: String,
-    public_key: VerifyingKey,
+    pub username: String,
+    pub public_key: VerifyingKey,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -37,19 +37,6 @@ impl Identity {
             username: username.to_string(),
             public_key,
         }
-    }
-
-    #[cfg(debug_assertions)]
-    pub fn debug_identity() -> Self {
-        let key = generate_good_key();
-        let contact = ContactIdentity::new(
-            "DEBUG_CONTACT",
-            key.verifying_key(),
-            Trust::Unknown,
-            Utc::now(),
-            Utc::now(),
-        );
-        contact.identity
     }
 
     pub fn username(&self) -> &str {
@@ -93,6 +80,18 @@ impl ContactIdentity {
 
     pub fn set_last_seen(&mut self, last_seen: DateTime<Utc>) {
         self.last_seen = last_seen;
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn debug_contact() -> Self {
+        let key = generate_good_key();
+        ContactIdentity::new(
+            "DEBUG_CONTACT",
+            key.verifying_key(),
+            Trust::Unknown,
+            Utc::now(),
+            Utc::now(),
+        )
     }
 }
 

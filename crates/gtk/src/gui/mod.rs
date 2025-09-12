@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use grrsmp_core::identity::ContactIdentity;
+use grrsmp_core::identity::Identity;
 use gtk::gio;
 use gtk::prelude::*;
 
@@ -51,9 +53,18 @@ fn widget_viewport_chat(app: &gtk::Application, state: GrrtkStateRef) -> impl Is
         .show_separators(false)
         .build();
 
+    let dbg_contact = ContactIdentity::debug_contact();
+    state
+        .borrow_mut()
+        .core
+        .known_identities
+        .insert(dbg_contact.identity.public_key, dbg_contact.clone());
     for number in (0..=100).rev() {
-        let msg =
-            MessageBubble::new_text(format!("foo bar {number} years ago"), chrono::Local::now());
+        let msg = MessageBubble::new_text(
+            format!("foo bar {number} years ago"),
+            chrono::Local::now(),
+            dbg_contact.identity.public_key,
+        );
         w_list_box.append(&msg.widget(app, state.clone()));
     }
     // TODO: automatically load the end

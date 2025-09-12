@@ -3,6 +3,7 @@ use std::fmt::Display;
 use chrono::DateTime;
 use chrono::Local;
 
+use ed25519_dalek::VerifyingKey;
 use grrsmp_core::chat::messages::{Message, MessageMeta, MessageText};
 use gtk::prelude::*;
 
@@ -19,9 +20,13 @@ pub(crate) struct MessageBubble {
 }
 
 impl MessageBubble {
-    pub(crate) fn new_text(text: impl Display, time_received: DateTime<Local>) -> Self {
+    pub(crate) fn new_text(
+        text: impl Display,
+        time_received: DateTime<Local>,
+        author_key: VerifyingKey,
+    ) -> Self {
         Self {
-            inner: Message::Text(MessageText::new(text, time_received)),
+            inner: Message::Text(MessageText::new(text, time_received, author_key)),
         }
     }
 
@@ -41,7 +46,14 @@ impl MessageBubble {
             .orientation(gtk::Orientation::Horizontal)
             .build();
 
-        let w_lbl_author = label(self.meta().author.username());
+        let state_b = state.borrow();
+        let author = match state_b.core.known_identities.get(&self.meta().author_key) {
+            Some(a) => a,
+            None => panic!("unknwon author: {:?}", self.meta().author_key.to_bytes()),
+        };
+
+        let w_lbl_author = label(&author.identity.username);
+        drop(state_b);
         let w_lbl_time = label(self.meta().time_received);
         w_lbl_time.set_halign(gtk::Align::Start);
         w_lbl_author.set_halign(gtk::Align::Start);

@@ -512,6 +512,7 @@ name = "grrsmp-gtk"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "ed25519-dalek",
  "grrsmp-core",
  "gtk4",
 ]

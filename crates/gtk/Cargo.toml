@@ -9,5 +9,6 @@ repository = {workspace = true}
 
 [dependencies]
 grrsmp-core.workspace = true
-gtk.workspace = true
+gtk = { version = "0.10.0", package = "gtk4"}
 chrono.workspace = true
+ed25519-dalek.workspace = true
