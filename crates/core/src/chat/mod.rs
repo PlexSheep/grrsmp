@@ -4,19 +4,19 @@ use chrono::{DateTime, Local};
 
 use crate::identity::Identity;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Message {
     Text(MessageText),
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageMeta {
     pub author: Identity, // PERF: since each message owns it's author, i think we may have data duplication here?
     pub time_received: chrono::DateTime<chrono::Local>,
     pub seen: bool,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageText {
     pub text: String,
     pub meta: MessageMeta,
