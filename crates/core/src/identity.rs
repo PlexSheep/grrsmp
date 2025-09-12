@@ -127,9 +127,7 @@ impl IdentityInner for ContactIdentity {
 
     #[cfg(debug_assertions)]
     fn debug_identity() -> Self {
-        let pkey_bytes: [u8; ed25519_dalek::PUBLIC_KEY_LENGTH] = rand::random();
-        let public_key = VerifyingKey::from_bytes(&pkey_bytes)
-            .expect("could not create a random garbage public key for the debug identity");
+        let public_key = generate_good_key().verifying_key();
         Self::new(
             "DEBUG_IDENTITY_CONCACT",
             public_key,
