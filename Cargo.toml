@@ -13,4 +13,4 @@ repository = "https://github.com/PlexSheep/grrsmp"
 
 [dependencies]
 chrono = "0.4.42"
-gtk = { version = "0.10.0", package = "gtk4", features = ["gnome_48", "v4_18"] }
+gtk = { version = "0.10.0", package = "gtk4"}
