@@ -5,7 +5,7 @@ pub enum Trust {
     Rejected,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Identity {
     username: String,
 }
