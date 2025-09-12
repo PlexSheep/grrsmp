@@ -1,8 +1,8 @@
-use std::{io::Write, net::SocketAddr, sync::Arc};
+use std::{net::SocketAddr, sync::Arc};
 
 use rustls::{ClientConfig, pki_types::ServerName};
 
-use crate::{error::CoreResult, state::State};
+use crate::{error::CoreResult, identity::ContactIdentity, state::State};
 
 #[derive(Debug)]
 #[must_use]
@@ -35,6 +35,10 @@ impl Connection {
     pub fn disconnect(self) -> CoreResult<()> {
         // i guess it does disconnection tings on drop?
         Ok(())
+    }
+
+    pub fn identity_exchange(&self, arg: &&mut State) -> CoreResult<ContactIdentity> {
+        todo!()
     }
 }
 

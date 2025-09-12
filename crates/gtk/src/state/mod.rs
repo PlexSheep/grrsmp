@@ -1,6 +1,6 @@
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 
-use grrsmp_core::state::State;
+use grrsmp_core::{error::CoreResult, net::connection::Connection, state::State};
 
 type GrrStateRefInner = Rc<RefCell<GrrtkState>>;
 
@@ -44,8 +44,8 @@ impl GrrtkState {
         GrrtkStateRef::new(self)
     }
 
-    pub(crate) fn connect(&mut self, remote: impl std::net::ToSocketAddrs) -> std::io::Result<()> {
-        todo!()
+    pub(crate) fn connect(&mut self, remote: std::net::SocketAddr) -> CoreResult<()> {
+        self.core.connect(remote)
     }
 }
 
