@@ -1,32 +1,34 @@
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{SigningKey, VerifyingKey};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Trust {
     Unknown,
     Trusted,
     Rejected,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Identity {
     username: String,
     public_key: VerifyingKey,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UserIdentity {
-    identity: Identity,
-    username: String,
+    pub identity: Identity,
+    pub username: String,
     private_key: SigningKey,
-    created: DateTime<Utc>,
+    pub created: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ContactIdentity {
-    identity: Identity,
-    trust: Trust,
-    first_seen: DateTime<Utc>,
+    pub identity: Identity,
+    pub trust: Trust,
+    pub first_seen: DateTime<Utc>,
+    pub last_seen: DateTime<Utc>,
 }
 
 impl Identity {
@@ -45,6 +47,7 @@ impl Identity {
             key.verifying_key(),
             Trust::Unknown,
             Utc::now(),
+            Utc::now(),
         );
         contact.identity
     }
@@ -57,12 +60,16 @@ impl Identity {
 impl UserIdentity {
     pub fn new(username: &str) -> Self {
         let key = generate_good_key();
+        Self::load(username, key, Utc::now())
+    }
+
+    pub fn load(username: &str, key: SigningKey, created: DateTime<Utc>) -> Self {
         let identity = Identity::new(username, key.verifying_key());
         Self {
             identity,
             username: username.to_string(),
             private_key: key,
-            created: Utc::now(),
+            created,
         }
     }
 }
@@ -73,13 +80,19 @@ impl ContactIdentity {
         public_key: VerifyingKey,
         trust: Trust,
         first_seen: DateTime<Utc>,
+        last_seen: DateTime<Utc>,
     ) -> Self {
         let identity = Identity::new(username, public_key);
         Self {
             identity,
             trust,
             first_seen,
+            last_seen,
         }
+    }
+
+    pub fn set_last_seen(&mut self, last_seen: DateTime<Utc>) {
+        self.last_seen = last_seen;
     }
 }
 

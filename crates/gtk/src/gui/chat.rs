@@ -3,13 +3,11 @@ use std::fmt::Display;
 use chrono::DateTime;
 use chrono::Local;
 
-use grrsmp_core::chat::Message;
-use grrsmp_core::chat::MessageMeta;
-use grrsmp_core::chat::MessageText;
+use grrsmp_core::chat::messages::{Message, MessageMeta, MessageText};
 use gtk::prelude::*;
 
 use crate::gui::label;
-use crate::state::GrrStateRef;
+use crate::state::GrrtkStateRef;
 use crate::utils::GUI_SPACING_LARGE;
 use crate::utils::GUI_SPACING_MID;
 use crate::utils::GUI_SPACING_XLARGE;
@@ -23,7 +21,7 @@ pub(crate) struct MessageBubble {
 impl MessageBubble {
     pub(crate) fn new_text(text: impl Display, time_received: DateTime<Local>) -> Self {
         Self {
-            inner: Message::Text(grrsmp_core::chat::MessageText::new(text, time_received)),
+            inner: Message::Text(MessageText::new(text, time_received)),
         }
     }
 
@@ -34,7 +32,7 @@ impl MessageBubble {
     pub(crate) fn widget(
         &self,
         app: &gtk::Application,
-        state: GrrStateRef,
+        state: GrrtkStateRef,
     ) -> impl IsA<gtk::Widget> {
         let w_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
@@ -77,7 +75,11 @@ impl MessageBubble {
             .build()
     }
 
-    fn widget_content(&self, app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
+    fn widget_content(
+        &self,
+        app: &gtk::Application,
+        state: GrrtkStateRef,
+    ) -> impl IsA<gtk::Widget> {
         match &self.inner {
             Message::Text(m) => Self::widget_content_text(app, state, m),
         }
@@ -85,7 +87,7 @@ impl MessageBubble {
 
     fn widget_content_text(
         _app: &gtk::Application,
-        _state: GrrStateRef,
+        _state: GrrtkStateRef,
         msg: &MessageText,
     ) -> impl IsA<gtk::Widget> {
         gtk::Label::new(Some(&msg.text))

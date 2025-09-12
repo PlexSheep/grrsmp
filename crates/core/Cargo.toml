@@ -16,3 +16,4 @@ ring.workspace = true
 rustls.workspace = true
 ed25519-dalek.workspace = true
 rand.workspace = true
+serde.workspace = true

@@ -4,12 +4,12 @@ use gtk::gio;
 use gtk::prelude::*;
 
 use crate::gui::chat::MessageBubble;
-use crate::state::GrrStateRef;
+use crate::state::GrrtkStateRef;
 use crate::utils::{GUI_SPACING_MID, GUI_SPACING_XXLARGE, version};
 
 mod chat;
 
-pub(crate) fn start_gui(app: &gtk::Application, state: GrrStateRef) {
+pub(crate) fn start_gui(app: &gtk::Application, state: GrrtkStateRef) {
     let w_window_content = gtk::Box::builder()
         .overflow(gtk::Overflow::Hidden)
         .orientation(gtk::Orientation::Vertical)
@@ -39,7 +39,7 @@ pub(crate) fn start_gui(app: &gtk::Application, state: GrrStateRef) {
     window.present();
 }
 
-fn widget_viewport_chat(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
+fn widget_viewport_chat(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<gtk::Widget> {
     let vp_chat = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
         .build();
@@ -73,7 +73,7 @@ fn widget_viewport_chat(app: &gtk::Application, state: GrrStateRef) -> impl IsA<
     vp_chat
 }
 
-fn widget_topbar(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
+fn widget_topbar(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<gtk::Widget> {
     // Create actions first
     let info_action = gio::SimpleAction::new("info", None);
     info_action.connect_activate(|_, _| {
@@ -127,7 +127,7 @@ fn widget_topbar(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Wi
     head_bar
 }
 
-fn widget_input_area(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk::Widget> {
+fn widget_input_area(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<gtk::Widget> {
     let w_frame = gtk::Frame::builder()
         .margin_top(GUI_SPACING_MID)
         .margin_bottom(GUI_SPACING_MID)
@@ -224,7 +224,7 @@ fn widget_input_area(app: &gtk::Application, state: GrrStateRef) -> impl IsA<gtk
     w_frame
 }
 
-fn dialog_connect(app: &gtk::Application, state: GrrStateRef) {
+fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
     let win_dialog = gtk::Window::builder()
         .modal(true)
         .default_width(300)

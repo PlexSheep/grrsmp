@@ -1,21 +1,25 @@
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 
-type GrrStateRefInner = Rc<RefCell<GrrState>>;
+use grrsmp_core::state::State;
 
-#[derive(Debug, Clone)]
-pub(crate) struct GrrState {
-    trash: i32,
+type GrrStateRefInner = Rc<RefCell<GrrtkState>>;
+
+#[derive(Debug)]
+pub(crate) struct GrrtkState {
+    pub core: State,
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct GrrStateRef {
+pub(crate) struct GrrtkStateRef {
     inner: GrrStateRefInner,
 }
 
-impl GrrState {
+impl GrrtkState {
     #[must_use]
     pub(crate) fn new() -> Self {
-        Self { trash: 18 }
+        Self {
+            core: State::default(),
+        }
     }
 
     #[inline]
@@ -36,8 +40,8 @@ impl GrrState {
 
     #[must_use]
     #[inline]
-    pub(crate) fn into_ref(self) -> GrrStateRef {
-        GrrStateRef::new(self)
+    pub(crate) fn into_ref(self) -> GrrtkStateRef {
+        GrrtkStateRef::new(self)
     }
 
     pub(crate) fn connect(&mut self, remote: impl std::net::ToSocketAddrs) -> std::io::Result<()> {
@@ -45,17 +49,17 @@ impl GrrState {
     }
 }
 
-impl GrrStateRef {
+impl GrrtkStateRef {
     #[must_use]
     #[inline]
-    pub(crate) fn new(state: GrrState) -> Self {
+    pub(crate) fn new(state: GrrtkState) -> Self {
         Self {
             inner: Rc::new(RefCell::new(state)),
         }
     }
 }
 
-impl Deref for GrrStateRef {
+impl Deref for GrrtkStateRef {
     type Target = GrrStateRefInner;
 
     fn deref(&self) -> &Self::Target {
