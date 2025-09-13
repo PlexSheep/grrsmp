@@ -1,20 +1,20 @@
-use std::{collections::hash_map::Entry, net::SocketAddr};
+use std::net::SocketAddr;
 
 use async_channel::{Receiver, Sender};
-use log::warn;
 
 use crate::{
     chat::messages::Message,
     error::CoreResult,
     identity::ContactIdentity,
-    net::connection::Connection,
-    state::{ConnectionData, State, StateSync},
+    state::{State, StateSync},
 };
 
 pub mod connection;
+mod jobs;
 pub mod verifier;
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum NetworkCommand {
     Connect(SocketAddr),
     Disconnect(SocketAddr),
@@ -31,44 +31,31 @@ pub enum NetworkEvent {
 
 impl State {
     pub fn start_backend_worker(
-        state: StateSync,
+        rc_state: StateSync,
         command_channel: Receiver<NetworkCommand>,
         event_channel: Sender<NetworkEvent>,
         rt: &mut tokio::runtime::Runtime,
     ) -> CoreResult<()> {
-        todo!()
-    }
-
-    async fn process_network_command(
-        &mut self,
-        command: NetworkCommand,
-    ) -> CoreResult<NetworkEvent> {
-        todo!()
-    }
-
-    async fn connect(&mut self, remote: SocketAddr) -> CoreResult<()> {
-        // TODO: this stuff needs to run on some other thread, preferably on a tokio async worker,
-        // otherwise it might block the gui?
-        let connection = Connection::connect(self, remote, self.tls_config.clone()).await?;
-        let remote_identity: ContactIdentity = connection.identity_exchange(&self).await?;
-
-        match self.active_connections.entry(remote) {
-            // we already have a connection with this socket addr???
-            Entry::Occupied(_en) => {
-                warn!("Duplicated connection, closing second connection...");
-                connection.disconnect().await?;
-                return Ok(());
+        let rc_state_copy = rc_state.clone();
+        let mut cmd_c = command_channel.clone();
+        let mut evt_c = event_channel.clone();
+        rt.spawn(async move {
+            loop {
+                State::job_network_command_processing(&rc_state_copy, &mut cmd_c, &mut evt_c)
+                    .await
+                    .expect("background boom");
             }
-            Entry::Vacant(en) => en.insert(ConnectionData {
-                conn: connection,
-                iden: remote_identity,
-            }),
-        };
-
+        });
+        let rc_state_copy = rc_state.clone();
+        let mut cmd_c = command_channel.clone();
+        let mut evt_c = event_channel.clone();
+        rt.spawn(async move {
+            loop {
+                State::job_network_listener(&rc_state_copy, &mut cmd_c, &mut evt_c)
+                    .await
+                    .expect("background boom");
+            }
+        });
         Ok(())
     }
-}
-
-fn default_rt() -> tokio::runtime::Runtime {
-    tokio::runtime::Runtime::new().expect("could not create the tokio runtime")
 }
