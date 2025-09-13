@@ -1,5 +1,3 @@
-use log::trace;
-
 #[derive(Debug, Default)]
 pub(crate) struct TrackedWidgets {
     lbl_listener_status: Option<gtk::Label>,

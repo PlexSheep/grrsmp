@@ -1,6 +1,5 @@
 use async_channel::{Receiver, Sender};
 use ed25519_dalek::VerifyingKey;
-use log::debug;
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 

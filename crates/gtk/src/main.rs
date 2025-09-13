@@ -4,7 +4,7 @@ use gtk::{Application, glib};
 
 use crate::actions::register_actions;
 use crate::gui::start_gui;
-use crate::state::{GrrtkState, GrrtkStateRef};
+use crate::state::GrrtkState;
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;

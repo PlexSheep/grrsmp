@@ -48,7 +48,7 @@ pub(crate) fn widget_topbar(
 
     head_bar.pack_start(&custom_menu_bar);
 
-    let w_lbl_listener_status = label(&state.borrow().fmt_listen_status());
+    let w_lbl_listener_status = label(state.borrow().fmt_listen_status());
 
     head_bar.pack_start(&w_lbl_listener_status);
     state
