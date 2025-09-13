@@ -317,7 +317,7 @@ fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
 
         match format!("{raw_host}:{raw_port}").parse::<std::net::SocketAddr>() {
             Ok(remote) => {
-                let mut state = state.borrow_mut();
+                let state = state.borrow_mut();
                 // TODO: wait for the network worker to respond with some event i guess? This is
                 // definitely not optimal, just sending a network command...
                 if let Err(e) = state

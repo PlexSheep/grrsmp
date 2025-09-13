@@ -2,8 +2,8 @@ use std::{pin::Pin, sync::Arc};
 
 use rustls::{ClientConfig, pki_types::ServerName};
 use tokio::{
-    io::{self, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
-    net, pin,
+    io::{self, AsyncRead, AsyncWrite},
+    net,
 };
 use tokio_rustls::{TlsConnector, TlsStream, rustls};
 
