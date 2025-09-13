@@ -1,8 +1,4 @@
-use std::{
-    fmt::Display,
-    net::{IpAddr, SocketAddr},
-    str::FromStr,
-};
+use std::{fmt::Display, net::SocketAddr};
 
 use async_channel::{Receiver, Sender};
 use ed25519_dalek::VerifyingKey;

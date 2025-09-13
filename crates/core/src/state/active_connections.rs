@@ -65,7 +65,7 @@ impl PartialOrd for ConnectionData {
                 .identity
                 .public_key
                 .as_bytes()
-                .cmp(&other.iden.identity.public_key.as_bytes()),
+                .cmp(other.iden.identity.public_key.as_bytes()),
         )
     }
 }
@@ -78,6 +78,6 @@ impl Ord for ConnectionData {
             .identity
             .public_key
             .as_bytes()
-            .cmp(&other.iden.identity.public_key.as_bytes())
+            .cmp(other.iden.identity.public_key.as_bytes())
     }
 }
