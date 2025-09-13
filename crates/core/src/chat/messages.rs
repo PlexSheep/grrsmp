@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Utc};
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
 
