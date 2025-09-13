@@ -99,3 +99,7 @@ fn generate_good_key() -> SigningKey {
     let mut csprng: rand::rngs::OsRng = rand::rngs::OsRng;
     SigningKey::generate(&mut csprng)
 }
+
+pub fn format_key(key: &VerifyingKey) -> String {
+    format!("{:?}", key.as_bytes())
+}

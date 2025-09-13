@@ -14,7 +14,10 @@ mod state;
 mod utils;
 
 fn main() -> glib::ExitCode {
-    env_logger::init();
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Trace)
+        .parse_default_env()
+        .init();
     let app = Application::builder().application_id(APP_ID).build();
 
     app.connect_activate(move |app| {
