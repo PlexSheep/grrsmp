@@ -17,7 +17,6 @@ impl State {
         command_channel: &mut Receiver<NetworkCommand>,
         event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
-        trace!("job_network_command_processing iteration");
         let cmd = command_channel.recv().await?;
         let event = state.write().await.process_network_command(cmd).await?;
         event_channel.send(event).await?;
@@ -29,7 +28,6 @@ impl State {
         _command_channel: &mut Receiver<NetworkCommand>,
         _event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
-        trace!("job_network_monitor_connections iteration");
         let mut buf = Vec::with_capacity(256);
         for (remote, connection) in state.write().await.active_connections.iter_mut() {
             connection.conn.read_to_end(&mut buf).await?;
@@ -44,7 +42,6 @@ impl State {
         _command_channel: &mut Receiver<NetworkCommand>,
         _event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
-        trace!("job_network_listener iteration");
         Ok(())
     }
 
