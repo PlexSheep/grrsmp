@@ -1,6 +1,6 @@
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 
-use grrsmp_core::{error::CoreResult, net::connection::Connection, state::State};
+use grrsmp_core::{error::CoreResult, state::State};
 
 type GrrStateRefInner = Rc<RefCell<GrrtkState>>;
 
