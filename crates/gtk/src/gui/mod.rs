@@ -3,7 +3,7 @@ use std::net::IpAddr;
 use std::net::SocketAddr;
 use std::str::FromStr;
 
-use chrono::Local;
+use chrono::Utc;
 use grrsmp_core::chat::messages::Message;
 use grrsmp_core::identity::ContactIdentity;
 use grrsmp_core::net::NetworkCommand;
@@ -242,7 +242,7 @@ fn widget_input_area(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<g
                 .borrow()
                 .selected_chat()
                 .expect("no chat is selected?");
-            let msg = Message::new_text(text, Local::now(), chat.contact.identity.public_key);
+            let msg = Message::new_text(text, Utc::now(), chat.contact().identity.public_key);
             state
                 .borrow_mut()
                 .command_channel
@@ -252,7 +252,7 @@ fn widget_input_area(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<g
                         .core()
                         .find_socket_addr_for_chat(&chat)
                         .expect("chat has no open connection"),
-                    chat.contact,
+                    chat.contact().clone(),
                     msg,
                 ))
                 .expect("could push send message command");

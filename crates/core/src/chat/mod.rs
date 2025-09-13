@@ -2,14 +2,15 @@ use std::net::SocketAddr;
 
 use crate::{chat::messages::Message, identity::ContactIdentity, state::State};
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 pub mod messages;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Chat {
-    pub messages: Vec<Message>,
-    pub contact: ContactIdentity,
+    messages: Vec<Message>,
+    contact: ContactIdentity,
 }
 
 impl Chat {
@@ -18,6 +19,27 @@ impl Chat {
             messages: Vec::new(),
             contact,
         }
+    }
+
+    pub fn latest_timestamp(&self) -> Option<DateTime<Utc>> {
+        Some(self.messages.last()?.meta().time_received)
+    }
+
+    pub fn messages(&self) -> &[Message] {
+        &self.messages
+    }
+
+    pub fn contact(&self) -> &ContactIdentity {
+        &self.contact
+    }
+
+    pub fn add_message(&mut self, msg: Message) {
+        self.messages.push(msg);
+        self.sort();
+    }
+
+    fn sort(&mut self) {
+        self.messages.sort_by_key(|m| m.meta().time_received);
     }
 }
 
