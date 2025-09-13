@@ -4,7 +4,7 @@ use gtk::{Application, glib};
 
 use crate::actions::register_actions;
 use crate::gui::start_gui;
-use crate::state::GrrtkState;
+use crate::state::{GrrtkState, GrrtkStateRef};
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;
@@ -12,6 +12,7 @@ pub(crate) const APP_ID: &str = "de.cscherr.grrrtk";
 
 mod actions;
 mod gui;
+mod jobs;
 mod state;
 mod utils;
 
@@ -36,7 +37,9 @@ fn main() -> glib::ExitCode {
             .expect("could not start backend worker");
 
         register_actions(app, state.clone());
-        start_gui(app, state)
+        start_gui(app, state.clone());
+
+        jobs::start_jobs(state);
     });
 
     app.run()

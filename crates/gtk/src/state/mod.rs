@@ -109,7 +109,6 @@ impl GrrtkState {
 
     pub(crate) fn fmt_listen_status(&self) -> String {
         let listener = &self.core().listener;
-        debug!("ui looks at listener: {listener:#?}");
         if let Some(listener) = listener {
             format!(
                 "Listening on {}",

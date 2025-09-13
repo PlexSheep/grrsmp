@@ -19,17 +19,6 @@ pub(crate) fn widget_topbar(
         Some("Listen"),
         Some(actions::ids::A_ID_CONNECTION_LISTEN!(app)),
     );
-
-    // create a menu item manually, add it to the menu, then add it to the tracked widgets so that
-    // we can update it from elsewhere
-    let menu_item_listen_status =
-        gtk::gio::MenuItem::new(Some(&state.borrow().fmt_listen_status()), None);
-    menu_connection.append_item(&menu_item_listen_status);
-    state
-        .borrow_mut()
-        .tracked_widgets
-        .set_menut_item_listen_status(menu_item_listen_status);
-
     menu_connection.append(
         Some("Disconnect"),
         Some(actions::ids::A_ID_CONNECTION_DISCONNECT!(app)),
@@ -54,10 +43,18 @@ pub(crate) fn widget_topbar(
     menu.append_submenu(Some("Settings"), &menu_settings);
     menu.append_submenu(Some("Info"), &menu_info);
 
+    let head_bar = gtk::HeaderBar::new();
     let custom_menu_bar = gtk::PopoverMenuBar::from_model(Some(&menu));
 
-    let head_bar = gtk::HeaderBar::new();
     head_bar.pack_start(&custom_menu_bar);
+
+    let w_lbl_listener_status = label(&state.borrow().fmt_listen_status());
+
+    head_bar.pack_start(&w_lbl_listener_status);
+    state
+        .borrow_mut()
+        .tracked_widgets
+        .set_lbl_listener_status(Some(w_lbl_listener_status.clone()));
 
     head_bar
 }
