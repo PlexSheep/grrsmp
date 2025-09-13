@@ -1,4 +1,6 @@
-use crate::{chat::messages::Message, identity::ContactIdentity};
+use std::net::SocketAddr;
+
+use crate::{chat::messages::Message, identity::ContactIdentity, state::State};
 
 use serde::{Deserialize, Serialize};
 
@@ -16,5 +18,12 @@ impl Chat {
             messages: Vec::new(),
             contact,
         }
+    }
+}
+
+impl State {
+    pub fn find_socket_addr_for_chat(&self, chat: &Chat) -> Option<SocketAddr> {
+        self.active_connections
+            .find_socket_addr_for_contact(&chat.contact.identity.public_key)
     }
 }

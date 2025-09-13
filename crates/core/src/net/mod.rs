@@ -1,4 +1,8 @@
-use std::{fmt::Display, net::SocketAddr};
+use std::{
+    fmt::Display,
+    net::{IpAddr, SocketAddr},
+    str::FromStr,
+};
 
 use async_channel::{Receiver, Sender};
 use ed25519_dalek::VerifyingKey;
@@ -34,6 +38,7 @@ pub enum NetworkEvent {
     MessageSent(SocketAddr, VerifyingKey, Message),
     /// We stopped connecting for some reason
     ConnectionAborted(SocketAddr),
+    ConnectionReset(SocketAddr),
     ListenerStarted(SocketAddr),
     ListenerStopped,
 }
@@ -127,6 +132,8 @@ impl Display for NetworkEvent {
                 Self::ListenerStarted(addr) =>
                     format!("Listener for incoming connection was started on {addr}"),
                 Self::ListenerStopped => "Listener for incoming connection was stopped".to_string(),
+                Self::ConnectionReset(addr) =>
+                    format!("Bad connection awards from {addr} was aborted",),
             }
         )
     }

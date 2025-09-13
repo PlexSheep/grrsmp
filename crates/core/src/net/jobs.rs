@@ -8,7 +8,7 @@ use tokio::{
 };
 
 use crate::{
-    error::CoreResult,
+    error::{CoreError, CoreResult},
     identity::ContactIdentity,
     net::{NetworkCommand, NetworkEvent, connection::Connection},
     state::{ConnectionData, State, StateSync},
@@ -48,7 +48,13 @@ impl State {
         if state.read().await.listener.is_some() {
             let mut state_b = state.write().await;
             let listener = state_b.listener.as_mut().unwrap();
-            let (stream, remote) = listener.accept().await?;
+            let (stream, remote) = match listener.accept().await {
+                Ok(s) => s,
+                Err(e) => {
+                    warn!("Could not accept connection attempt to listener: {e}");
+                    return Ok(());
+                }
+            };
             let state_c = state.clone();
             let evt_c = event_channel.clone();
             let cmd_c = command_channel.clone();
@@ -108,13 +114,6 @@ impl State {
             }),
         };
 
-        self.active_connections
-            .get_mut(&remote)
-            .unwrap()
-            .conn
-            .write_all(b"hello world")
-            .await?;
-
         Ok(NetworkEvent::ConnectionEstablished(
             remote,
             remote_identity.identity.public_key,
@@ -156,8 +155,24 @@ impl State {
         event_channel: Sender<NetworkEvent>,
         _command_channel: Receiver<NetworkCommand>,
     ) -> CoreResult<()> {
-        let event = state.write().await.connect_from(stream, remote).await?;
-        event_channel.send(event).await?;
+        match state.write().await.connect_from(stream, remote).await {
+            Ok(event) => {
+                event_channel.send(event).await?;
+            }
+            Err(err) => match &err {
+                CoreError::IO(e) => {
+                    if matches!(e.kind(), std::io::ErrorKind::ConnectionReset) {
+                        info!("Bad connection attempt from {remote}");
+                        event_channel
+                            .send(NetworkEvent::ConnectionReset(remote))
+                            .await?;
+                    } else {
+                        return Err(err);
+                    }
+                }
+                _ => return Err(err),
+            },
+        };
         Ok(())
     }
 }

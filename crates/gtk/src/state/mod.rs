@@ -1,9 +1,11 @@
 use async_channel::{Receiver, Sender};
+use ed25519_dalek::VerifyingKey;
 use log::debug;
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
 use grrsmp_core::{
+    chat::Chat,
     error::CoreResult,
     net::{NetworkCommand, NetworkEvent},
     state::{State, StateSync},
@@ -15,8 +17,9 @@ type GrrStateRefInner = Rc<RefCell<GrrtkState>>;
 pub(crate) struct GrrtkState {
     pub core: StateSync,
     pub command_channel: Sender<NetworkCommand>,
-    pub event_channel: Receiver<NetworkEvent>,
+    pub event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
     pub rt: tokio::runtime::Runtime,
+    selected_chat: Option<VerifyingKey>,
 }
 
 #[derive(Debug, Clone)]
@@ -36,6 +39,7 @@ impl GrrtkState {
             command_channel,
             event_channel,
             rt,
+            selected_chat: None,
         }
     }
 
@@ -64,6 +68,24 @@ impl GrrtkState {
         Err(grrsmp_core::error::CoreError::Load(
             grrsmp_core::error::LoadError::Placeholder,
         ))
+    }
+
+    pub(crate) fn set_selected_chat(&mut self, key: Option<VerifyingKey>) -> CoreResult<()> {
+        if let Some(key) = key {
+            if self.core().chats.contains_key(&key) {
+                self.selected_chat = Some(key);
+            } else {
+                panic!("given key not found in chats")
+            }
+        } else {
+            self.selected_chat = None;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn selected_chat(&self) -> Option<Chat> {
+        let key = self.selected_chat?;
+        Some(self.core().chats[&key].clone())
     }
 
     #[must_use]
