@@ -107,13 +107,13 @@ impl Display for NetworkEvent {
             "{}",
             match self {
                 Self::ConnectionEstablished(addr, key) =>
-                    format!("Connection established with {addr} ({})", format_key(&key)),
+                    format!("Connection established with {addr} ({})", format_key(key)),
                 Self::ConnectionLost(addr, key) =>
-                    format!("Peer {addr} ({}) has disconnected", format_key(&key)),
+                    format!("Peer {addr} ({}) has disconnected", format_key(key)),
                 Self::IncomingMessage(addr, key, _msg) =>
-                    format!("Message received from {addr} ({})", format_key(&key)),
+                    format!("Message received from {addr} ({})", format_key(key)),
                 Self::MessageSent(addr, key, _msg) =>
-                    format!("Message sent to {addr} ({})", format_key(&key)),
+                    format!("Message sent to {addr} ({})", format_key(key)),
                 Self::ConnectionAborted(addr) =>
                     format!("Connection to {addr} attempt was aborted"),
             }
