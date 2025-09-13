@@ -1,6 +1,11 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{pin::Pin, sync::Arc};
 
 use rustls::{ClientConfig, pki_types::ServerName};
+use tokio::{
+    io::{self, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
+    net, pin,
+};
+use tokio_rustls::{TlsConnector, TlsStream, rustls};
 
 use crate::{error::CoreResult, identity::ContactIdentity, state::State};
 
@@ -21,37 +26,41 @@ macro_rules! delegate {
 #[derive(Debug)]
 #[must_use]
 pub struct P2PConnection {
-    stream: rustls::StreamOwned<rustls::ClientConnection, std::net::TcpStream>,
+    stream: TlsStream<net::TcpStream>,
 }
 
 impl Connection {
-    pub fn connect(
+    pub async fn connect(
         state: &State,
-        remote: SocketAddr,
+        remote: std::net::SocketAddr,
         config: Arc<ClientConfig>,
     ) -> CoreResult<Self> {
-        Ok(Self::P2P(P2PConnection::connect(state, remote, config)?))
+        Ok(Self::P2P(
+            P2PConnection::connect(state, remote, config).await?,
+        ))
     }
-    pub fn disconnect(self) -> CoreResult<()> {
+    pub async fn disconnect(self) -> CoreResult<()> {
         // i guess it does disconnection tings on drop?
         Ok(())
     }
 
-    pub fn identity_exchange(&self, arg: &&mut State) -> CoreResult<ContactIdentity> {
+    pub async fn identity_exchange(&self, state: &&mut State) -> CoreResult<ContactIdentity> {
         todo!()
     }
 }
 
 impl P2PConnection {
-    pub fn connect(
+    pub async fn connect(
         _state: &State,
-        remote: SocketAddr,
+        remote: std::net::SocketAddr,
         config: Arc<ClientConfig>,
     ) -> CoreResult<Self> {
-        let tcp_socket = std::net::TcpStream::connect(remote)?;
+        let tcp_socket = net::TcpStream::connect(remote).await?;
         let remote_name = ServerName::IpAddress(remote.ip().into());
-        let tls_connection = rustls::ClientConnection::new(config, remote_name)?;
-        let stream = rustls::StreamOwned::new(tls_connection, tcp_socket);
+        let connector = TlsConnector::from(config);
+        let client_stream: tokio_rustls::client::TlsStream<net::TcpStream> =
+            connector.connect(remote_name, tcp_socket).await?;
+        let stream = tokio_rustls::TlsStream::Client(client_stream);
 
         Ok(Self { stream })
     }
@@ -64,18 +73,44 @@ pub fn tls_config() -> ClientConfig {
         .with_no_client_auth() // TODO: client auth might be something i want?
 }
 
-impl std::io::Write for Connection {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        delegate!(self, stream.write(buf))
-    }
-
-    fn flush(&mut self) -> std::io::Result<()> {
-        delegate!(self, stream.flush())
+impl io::AsyncRead for Connection {
+    fn poll_read(
+        self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &mut io::ReadBuf<'_>,
+    ) -> std::task::Poll<std::io::Result<()>> {
+        match self.get_mut() {
+            Self::P2P(c) => Pin::new(&mut c.stream).poll_read(cx, buf),
+        }
     }
 }
 
-impl std::io::Read for Connection {
-    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        delegate!(self, stream.read(buf))
+impl io::AsyncWrite for Connection {
+    fn poll_write(
+        self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &[u8],
+    ) -> std::task::Poll<Result<usize, std::io::Error>> {
+        match self.get_mut() {
+            Self::P2P(c) => Pin::new(&mut c.stream).poll_write(cx, buf),
+        }
+    }
+
+    fn poll_flush(
+        self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Result<(), std::io::Error>> {
+        match self.get_mut() {
+            Self::P2P(c) => Pin::new(&mut c.stream).poll_flush(cx),
+        }
+    }
+
+    fn poll_shutdown(
+        self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Result<(), std::io::Error>> {
+        match self.get_mut() {
+            Self::P2P(c) => Pin::new(&mut c.stream).poll_shutdown(cx),
+        }
     }
 }

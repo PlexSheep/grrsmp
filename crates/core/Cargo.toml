@@ -13,9 +13,10 @@ readme = "README.md"
 [dependencies]
 chrono.workspace = true
 ring.workspace = true
-rustls.workspace = true
 ed25519-dalek.workspace = true
 rand.workspace = true
 serde.workspace = true
 log.workspace = true
+tokio.workspace = true
 thiserror = "2.0.16"
+tokio-rustls = { version = "0.26.2", default-features = false, features = ["ring", "logging"] }

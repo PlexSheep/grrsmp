@@ -1,4 +1,5 @@
 use thiserror::Error;
+use tokio_rustls::rustls;
 
 pub type CoreResult<T> = std::result::Result<T, CoreError>;
 
