@@ -1,4 +1,5 @@
 use async_channel::{Receiver, Sender};
+use log::debug;
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
@@ -77,6 +78,21 @@ impl GrrtkState {
 
     pub(crate) fn core_mut(&self) -> RwLockWriteGuard<'_, State> {
         self.rt.block_on(async { self.core.write().await })
+    }
+
+    pub(crate) fn fmt_listen_status(&self) -> String {
+        let listener = &self.core().listener;
+        debug!("ui looks at listener: {listener:#?}");
+        if let Some(listener) = listener {
+            format!(
+                "Listening on {}",
+                listener
+                    .local_addr()
+                    .expect("could not read local address of listener")
+            )
+        } else {
+            "No listener active".to_string()
+        }
     }
 }
 

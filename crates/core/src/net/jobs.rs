@@ -142,6 +142,7 @@ impl State {
             panic!()
         }
         let listener = net::TcpListener::bind(listen_addr).await?;
+        let listen_addr = listener.local_addr()?;
 
         self.listener = Some(listener);
 

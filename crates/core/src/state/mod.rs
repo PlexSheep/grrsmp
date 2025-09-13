@@ -23,7 +23,7 @@ pub struct State {
     #[serde(skip, default = "default_config")]
     pub(crate) tls_config: Arc<rustls::ClientConfig>,
     #[serde(skip)]
-    pub(crate) listener: Option<TcpListener>,
+    pub listener: Option<TcpListener>,
 }
 
 impl State {
