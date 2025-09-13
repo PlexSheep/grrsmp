@@ -87,8 +87,6 @@ pub(crate) fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
         match format!("{raw_host}:{raw_port}").parse::<std::net::SocketAddr>() {
             Ok(remote) => {
                 let state = state.borrow_mut();
-                // TODO: wait for the network worker to respond with some event i guess? This is
-                // definitely not optimal, just sending a network command...
                 if let Err(e) = state
                     .command_channel
                     .send_blocking(NetworkCommand::Connect(remote))
@@ -100,6 +98,11 @@ pub(crate) fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
             }
             Err(e) => handle_error(format!("Could not parse remote address: {e}")),
         }
+
+        // TODO: wait for the network worker to respond with some event i guess? This is
+        // definitely not optimal, just sending a network command...
+
+        // TODO: update the gui label showing the listen status... somehow???
     });
 
     win_dialog.present();

@@ -12,10 +12,7 @@ use gtk::{Application, prelude::*};
 use log::warn;
 
 pub(crate) fn register_actions(app: &Application, state: GrrtkStateRef) {
-    simple_action!(app, state, app_c, state_c, A_ID_CONNECTION_LISTEN!(), {
-        dialog_connect(&app_c.clone(), state_c.clone());
-    });
-    simple_action!(app, state, _app_c, state_c, A_ID_CONNECTION_CONNECT!(), {
+    simple_action!(app, state, _app_c, state_c, A_ID_CONNECTION_LISTEN!(), {
         state_c
             .borrow_mut()
             .command_channel
@@ -25,6 +22,9 @@ pub(crate) fn register_actions(app: &Application, state: GrrtkStateRef) {
             )))
             .expect("could not start listener");
         // TODO: update ui information about the listener
+    });
+    simple_action!(app, state, app_c, state_c, A_ID_CONNECTION_CONNECT!(), {
+        dialog_connect(&app_c.clone(), state_c.clone());
     });
     simple_action!(
         app,

@@ -20,8 +20,8 @@ pub(crate) fn widget_topbar(
         Some(actions::ids::A_ID_CONNECTION_LISTEN!(app)),
     );
     menu_connection.append(
-        Some(&state.borrow().fmt_listen_status()), // this does not get updated :(
-        None,
+        Some(&state.borrow().fmt_listen_status()), // FIXME: this does not get updated :(
+        Some("void"),
     );
     menu_connection.append(
         Some("Disconnect"),
