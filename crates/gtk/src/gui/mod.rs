@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use grrsmp_core::identity::ContactIdentity;
+use grrsmp_core::net::NetworkCommand;
 use gtk::gio;
 use gtk::prelude::*;
 
@@ -55,7 +56,7 @@ fn widget_viewport_chat(app: &gtk::Application, state: GrrtkStateRef) -> impl Is
     let dbg_contact = ContactIdentity::debug_contact();
     state
         .borrow_mut()
-        .core
+        .core_mut()
         .known_identities
         .insert(dbg_contact.identity.public_key, dbg_contact.clone());
     for number in (0..=100).rev() {
@@ -317,7 +318,12 @@ fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
         match format!("{raw_host}:{raw_port}").parse::<std::net::SocketAddr>() {
             Ok(remote) => {
                 let mut state = state.borrow_mut();
-                if let Err(e) = state.connect(remote) {
+                // TODO: wait for the network worker to respond with some event i guess? This is
+                // definitely not optimal, just sending a network command...
+                if let Err(e) = state
+                    .command_channel
+                    .send_blocking(NetworkCommand::Connect(remote))
+                {
                     handle_error(format!("Could not connect to remove: {e}"))
                 } else {
                     win_dialog_clone.close();

@@ -47,12 +47,14 @@ impl MessageBubble {
             .build();
 
         let state_b = state.borrow();
-        let author = match state_b.core.known_identities.get(&self.meta().author_key) {
+        let core = state_b.core();
+        let author = match core.known_identities.get(&self.meta().author_key) {
             Some(a) => a,
             None => panic!("unknwon author: {:?}", self.meta().author_key.to_bytes()),
         };
 
         let w_lbl_author = label(&author.identity.username);
+        drop(core);
         drop(state_b);
         let w_lbl_time = label(self.meta().time_received);
         w_lbl_time.set_halign(gtk::Align::Start);
