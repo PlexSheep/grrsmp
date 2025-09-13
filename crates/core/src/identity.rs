@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use serde::{Deserialize, Serialize};
@@ -91,6 +93,20 @@ impl ContactIdentity {
             Trust::Unknown,
             Utc::now(),
             Utc::now(),
+        )
+    }
+}
+
+impl Display for Trust {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Unknown => "Unknown",
+                Self::Trusted => "Trusted",
+                Self::Rejected => "Rejected",
+            }
         )
     }
 }
