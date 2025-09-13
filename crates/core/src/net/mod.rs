@@ -21,6 +21,9 @@ pub enum NetworkCommand {
     Connect(SocketAddr),
     Disconnect(SocketAddr),
     SendMessage(SocketAddr, ContactIdentity, Message),
+    /// Associated [SocketAddr] is the local addres on which to listen, not a remote address
+    StartListener(SocketAddr),
+    StopListener,
 }
 
 #[derive(Debug, Clone)]
@@ -31,6 +34,8 @@ pub enum NetworkEvent {
     MessageSent(SocketAddr, VerifyingKey, Message),
     /// We stopped connecting for some reason
     ConnectionAborted(SocketAddr),
+    ListenerStarted(SocketAddr),
+    ListenerStopped,
 }
 
 macro_rules! start_backend_job {
@@ -95,6 +100,9 @@ impl Display for NetworkCommand {
                 Self::Disconnect(addr) => format!("Disconnect from {addr}"),
                 Self::SendMessage(addr, id, _msg) =>
                     format!("Send Message to {addr}: {}", id.identity.username()),
+                Self::StartListener(addr) =>
+                    format!("Start listening for incoming connection on {addr}"),
+                Self::StopListener => "Stop listening for incoming connections".to_string(),
             }
         )
     }
@@ -116,6 +124,9 @@ impl Display for NetworkEvent {
                     format!("Message sent to {addr} ({})", format_key(key)),
                 Self::ConnectionAborted(addr) =>
                     format!("Connection to {addr} attempt was aborted"),
+                Self::ListenerStarted(addr) =>
+                    format!("Listener for incoming connection was started on {addr}"),
+                Self::ListenerStopped => "Listener for incoming connection was stopped".to_string(),
             }
         )
     }

@@ -2,6 +2,7 @@ mod known_identities;
 pub use known_identities::*;
 mod active_connections;
 pub use active_connections::*;
+use tokio::net::TcpListener;
 
 use std::{collections::HashMap, sync::Arc};
 
@@ -21,6 +22,8 @@ pub struct State {
     pub user_identity: Option<UserIdentity>,
     #[serde(skip, default = "default_config")]
     pub(crate) tls_config: Arc<rustls::ClientConfig>,
+    #[serde(skip)]
+    pub(crate) listener: Option<TcpListener>,
 }
 
 impl State {
@@ -37,6 +40,7 @@ impl Default for State {
             active_connections: Default::default(),
             user_identity: Default::default(),
             tls_config: default_config(),
+            listener: Default::default(),
         }
     }
 }

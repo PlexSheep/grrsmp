@@ -2,7 +2,7 @@ use std::{pin::Pin, sync::Arc};
 
 use rustls::{ClientConfig, pki_types::ServerName};
 use tokio::{
-    io::{self, AsyncRead, AsyncWrite},
+    io::{self, AsyncRead, AsyncWrite, AsyncWriteExt},
     net,
 };
 use tokio_rustls::{TlsConnector, TlsStream, rustls};
@@ -30,36 +30,56 @@ pub struct P2PConnection {
 }
 
 impl Connection {
-    pub async fn connect(
-        state: &State,
+    pub(crate) async fn connect(
+        remote: std::net::SocketAddr,
+        config: Arc<ClientConfig>,
+    ) -> CoreResult<Self> {
+        Ok(Self::P2P(P2PConnection::connect(remote, config).await?))
+    }
+
+    pub(crate) async fn from_tcp_socket(
+        stream: net::TcpStream,
         remote: std::net::SocketAddr,
         config: Arc<ClientConfig>,
     ) -> CoreResult<Self> {
         Ok(Self::P2P(
-            P2PConnection::connect(state, remote, config).await?,
+            P2PConnection::from_tcp_socket(stream, remote, config).await?,
         ))
     }
-    pub async fn disconnect(self) -> CoreResult<()> {
+
+    pub(crate) async fn disconnect(self) -> CoreResult<()> {
         // i guess it does disconnection tings on drop?
         Ok(())
     }
 
-    pub async fn identity_exchange(&self, state: &&mut State) -> CoreResult<ContactIdentity> {
+    pub(crate) async fn identity_exchange(
+        &self,
+        state: &&mut State,
+    ) -> CoreResult<ContactIdentity> {
         todo!()
     }
 }
 
 impl P2PConnection {
-    pub async fn connect(
-        _state: &State,
+    pub(crate) async fn connect(
         remote: std::net::SocketAddr,
         config: Arc<ClientConfig>,
     ) -> CoreResult<Self> {
-        let tcp_socket = net::TcpStream::connect(remote).await?;
+        let tcp_stream = net::TcpStream::connect(remote).await?;
+        Self::from_tcp_socket(tcp_stream, remote, config).await
+    }
+
+    pub(crate) async fn from_tcp_socket(
+        mut tcp_stream: net::TcpStream,
+        remote: std::net::SocketAddr,
+        config: Arc<ClientConfig>,
+    ) -> CoreResult<Self> {
+        tcp_stream.write_all(b"Hello world").await?;
+
         let remote_name = ServerName::IpAddress(remote.ip().into());
         let connector = TlsConnector::from(config);
         let client_stream: tokio_rustls::client::TlsStream<net::TcpStream> =
-            connector.connect(remote_name, tcp_socket).await?;
+            connector.connect(remote_name, tcp_stream).await?;
         let stream = tokio_rustls::TlsStream::Client(client_stream);
 
         Ok(Self { stream })
