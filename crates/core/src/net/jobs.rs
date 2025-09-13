@@ -1,7 +1,7 @@
 use std::{collections::hash_map::Entry, net::SocketAddr};
 
 use async_channel::{Receiver, Sender};
-use log::{debug, info, trace, warn};
+use log::{debug, info, warn};
 use tokio::io::AsyncReadExt;
 
 use crate::{
