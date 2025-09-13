@@ -1,10 +1,6 @@
-use std::fmt::Display;
+use std::ops::Deref;
 
-use chrono::DateTime;
-use chrono::Local;
-
-use ed25519_dalek::VerifyingKey;
-use grrsmp_core::chat::messages::{Message, MessageMeta, MessageText};
+use grrsmp_core::chat::messages::{Message, MessageText};
 use gtk::prelude::*;
 
 use crate::gui::label;
@@ -20,20 +16,6 @@ pub(crate) struct MessageBubble {
 }
 
 impl MessageBubble {
-    pub(crate) fn new_text(
-        text: impl Display,
-        time_received: DateTime<Local>,
-        author_key: VerifyingKey,
-    ) -> Self {
-        Self {
-            inner: Message::Text(MessageText::new(text, time_received, author_key)),
-        }
-    }
-
-    pub(crate) fn meta(&self) -> &MessageMeta {
-        self.inner.meta()
-    }
-
     pub(crate) fn widget(
         &self,
         app: &gtk::Application,
@@ -105,5 +87,19 @@ impl MessageBubble {
         msg: &MessageText,
     ) -> impl IsA<gtk::Widget> {
         gtk::Label::new(Some(&msg.text))
+    }
+}
+
+impl Deref for MessageBubble {
+    type Target = Message;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl From<Message> for MessageBubble {
+    fn from(value: Message) -> Self {
+        MessageBubble { inner: value }
     }
 }

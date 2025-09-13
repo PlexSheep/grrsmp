@@ -65,12 +65,13 @@ fn widget_viewport_chat(app: &gtk::Application, state: GrrtkStateRef) -> impl Is
         .known_identities
         .insert(dbg_contact.identity.public_key, dbg_contact.clone());
     for number in (0..=100).rev() {
-        let msg = MessageBubble::new_text(
+        let msg = Message::new_text(
             format!("foo bar {number} years ago"),
-            chrono::Local::now(),
+            chrono::Utc::now(),
             dbg_contact.identity.public_key,
         );
-        w_list_box.append(&msg.widget(app, state.clone()));
+        let bubble: MessageBubble = msg.into();
+        w_list_box.append(&bubble.widget(app, state.clone()));
     }
     // TODO: automatically load the end
 
