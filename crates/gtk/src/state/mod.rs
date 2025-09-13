@@ -11,14 +11,18 @@ use grrsmp_core::{
     state::{State, StateSync},
 };
 
+pub(crate) mod tracked_widgets;
+use tracked_widgets::TrackedWidgets;
+
 type GrrStateRefInner = Rc<RefCell<GrrtkState>>;
 
 #[derive(Debug)]
 pub(crate) struct GrrtkState {
-    pub core: StateSync,
-    pub command_channel: Sender<NetworkCommand>,
-    pub event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
-    pub rt: tokio::runtime::Runtime,
+    pub(crate) core: StateSync,
+    pub(crate) command_channel: Sender<NetworkCommand>,
+    pub(crate) event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
+    pub(crate) rt: tokio::runtime::Runtime,
+    pub(crate) tracked_widgets: TrackedWidgets,
     selected_chat: Option<VerifyingKey>,
 }
 
@@ -40,6 +44,7 @@ impl GrrtkState {
             event_channel,
             rt,
             selected_chat: None,
+            tracked_widgets: Default::default(),
         }
     }
 

@@ -1,6 +1,6 @@
 use gtk::{gio, prelude::*};
 
-use crate::{actions, state::GrrtkStateRef, utils::version};
+use crate::{actions, gui::label, state::GrrtkStateRef, utils::version};
 
 pub(crate) fn widget_topbar(
     _app: &gtk::Application,
@@ -19,10 +19,17 @@ pub(crate) fn widget_topbar(
         Some("Listen"),
         Some(actions::ids::A_ID_CONNECTION_LISTEN!(app)),
     );
-    menu_connection.append(
-        Some(&state.borrow().fmt_listen_status()), // FIXME: this does not get updated :(
-        Some("void"),
-    );
+
+    // create a menu item manually, add it to the menu, then add it to the tracked widgets so that
+    // we can update it from elsewhere
+    let menu_item_listen_status =
+        gtk::gio::MenuItem::new(Some(&state.borrow().fmt_listen_status()), None);
+    menu_connection.append_item(&menu_item_listen_status);
+    state
+        .borrow_mut()
+        .tracked_widgets
+        .set_menut_item_listen_status(menu_item_listen_status);
+
     menu_connection.append(
         Some("Disconnect"),
         Some(actions::ids::A_ID_CONNECTION_DISCONNECT!(app)),
