@@ -86,7 +86,7 @@ pub(crate) fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
 
         match format!("{raw_host}:{raw_port}").parse::<std::net::SocketAddr>() {
             Ok(remote) => {
-                let state = state.borrow_mut();
+                let state = state.borrow();
                 if let Err(e) = state
                     .command_channel
                     .send_blocking(NetworkCommand::Connect(remote))

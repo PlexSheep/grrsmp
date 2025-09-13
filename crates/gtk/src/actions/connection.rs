@@ -34,7 +34,7 @@ pub(crate) fn register_actions(app: &Application, state: GrrtkStateRef) {
 
 fn send_command(state: &GrrtkStateRef, cmd: NetworkCommand) {
     state
-        .borrow_mut()
+        .borrow()
         .command_channel
         .send_blocking(cmd)
         .expect("could not start listener");

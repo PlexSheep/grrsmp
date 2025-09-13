@@ -1,3 +1,8 @@
+// this code is really delicate, much care needs to be
+// taken to avoid deadlocks in functions called from this one
+#![deny(clippy::await_holding_refcell_ref)]
+#![deny(clippy::await_holding_lock)]
+
 use grrsmp_core::net::NetworkEvent;
 use log::trace;
 
@@ -11,26 +16,29 @@ pub(super) fn start_jobs(state: GrrtkStateRef) {
 
 async fn event_processor(state: GrrtkStateRef) {
     loop {
-        if let Ok(event) = state.borrow().event_channel.try_recv() {
-            log::info!("Processing network event: {}", event);
+        {
+            let state_bind: std::cell::Ref<'_, crate::state::GrrtkState> = state.borrow();
+            if let Ok(event) = state_bind.event_channel.try_recv() {
+                log::info!("Processing network event: {event}");
 
-            match event {
-                NetworkEvent::ListenerStarted(_addr) => {
-                    update_listener_label(&state);
+                match event {
+                    NetworkEvent::ListenerStarted(_addr) => {
+                        update_listener_label(&state_bind);
+                    }
+                    NetworkEvent::ListenerStopped => {
+                        update_listener_label(&state_bind);
+                    }
+                    NetworkEvent::ConnectionEstablished(_addr, _key) => {
+                        // Add new chat, update chat list, etc.
+                    }
+                    NetworkEvent::IncomingMessage(_addr, _key, _msg) => {
+                        // Update chat window, show notification, etc.
+                    }
+                    NetworkEvent::ConnectionLost(_addr, _key) => {
+                        // Update connection status, maybe show error
+                    }
+                    _ => {}
                 }
-                NetworkEvent::ListenerStopped => {
-                    update_listener_label(&state);
-                }
-                NetworkEvent::ConnectionEstablished(_addr, _key) => {
-                    // Add new chat, update chat list, etc.
-                }
-                NetworkEvent::IncomingMessage(_addr, _key, _msg) => {
-                    // Update chat window, show notification, etc.
-                }
-                NetworkEvent::ConnectionLost(_addr, _key) => {
-                    // Update connection status, maybe show error
-                }
-                _ => {}
             }
         }
 
@@ -38,14 +46,12 @@ async fn event_processor(state: GrrtkStateRef) {
     }
 }
 
-fn update_listener_label(state: &GrrtkStateRef) {
+fn update_listener_label(state: &std::cell::Ref<'_, crate::state::GrrtkState>) {
     trace!("updating listener label");
-    let new_text = state.borrow().fmt_listen_status().to_owned();
-    let state = state.borrow();
+    let new_text = state.fmt_listen_status();
     state
         .tracked_widgets
         .lbl_listener_status()
         .expect("menu listen status label does not exist")
         .set_text(&new_text);
-    // FIXME: the displayed content of the damn menu item does not change?
 }

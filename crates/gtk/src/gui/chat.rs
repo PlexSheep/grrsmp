@@ -124,7 +124,7 @@ pub(crate) fn widget_viewport_chat(
 
     let dbg_contact = ContactIdentity::debug_contact();
     state
-        .borrow_mut()
+        .borrow()
         .core_mut()
         .known_identities
         .insert(dbg_contact.identity.public_key, dbg_contact.clone());
@@ -235,7 +235,7 @@ fn widget_input_area(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<g
                 .expect("no chat is selected?");
             let msg = Message::new_text(text, Utc::now(), chat.contact().identity.public_key);
             state
-                .borrow_mut()
+                .borrow()
                 .command_channel
                 .send_blocking(NetworkCommand::SendMessage(
                     state

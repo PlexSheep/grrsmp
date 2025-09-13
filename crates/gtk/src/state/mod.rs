@@ -100,10 +100,12 @@ impl GrrtkState {
     }
 
     pub(crate) fn core(&self) -> RwLockReadGuard<'_, State> {
+        log::trace!("accessing core state (immutable)");
         self.rt.block_on(async { self.core.read().await })
     }
 
     pub(crate) fn core_mut(&self) -> RwLockWriteGuard<'_, State> {
+        log::trace!("accessing core state (mutable)");
         self.rt.block_on(async { self.core.write().await })
     }
 
