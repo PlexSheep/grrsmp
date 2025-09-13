@@ -11,8 +11,6 @@ mod identity;
 mod topbar;
 
 use chat::*;
-use connect::*;
-use identity::*;
 use topbar::*;
 
 pub(crate) fn start_gui(app: &gtk::Application, state: GrrtkStateRef) {
