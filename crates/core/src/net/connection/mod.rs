@@ -181,8 +181,9 @@ impl P2PConnection {
         Ok((peer_identity, transport))
     }
 
-    async fn disconnect(self) -> CoreResult<()> {
-        todo!()
+    async fn disconnect(mut self) -> CoreResult<()> {
+        self.stream.shutdown().await?;
+        Ok(())
     }
 
     async fn peer_identity(&self) -> &Identity {
