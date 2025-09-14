@@ -5,11 +5,7 @@ pub(crate) const GUI_SPACING_XXLARGE: i32 = 24;
 pub(crate) const GUI_SPACING_XXXLARGE: i32 = 32;
 
 pub fn version() -> String {
-    format!(
-        "Version: {} v{}",
-        env!("CARGO_PKG_NAME"),
-        env!("CARGO_PKG_VERSION")
-    )
-    .trim()
-    .to_string()
+    format!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))
+        .trim()
+        .to_string()
 }

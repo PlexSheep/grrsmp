@@ -10,6 +10,7 @@ pub(crate) fn widget_topbar(
     let menu_connection: gio::Menu = gio::Menu::new();
     let menu_settings: gio::Menu = gio::Menu::new();
     let menu_info: gio::Menu = gio::Menu::new();
+    let menu_info_versions: gio::Menu = gio::Menu::new();
 
     menu_connection.append(
         Some("Connect"),
@@ -37,7 +38,18 @@ pub(crate) fn widget_topbar(
         Some(actions::ids::A_ID_SETTINGS_DELETE_CHATS!(app)),
     );
 
-    menu_info.append(Some(&version()), Some(actions::ids::A_ID_INFO!(app)));
+    menu_info_versions.append(Some(&crate::utils::version()), Some("void"));
+    menu_info_versions.append(Some(&grrsmp_core::version()), Some("void"));
+    menu_info_versions.append(
+        Some(&format!(
+            "This is free software\nlicensed under {}",
+            env!("CARGO_PKG_LICENSE")
+        )),
+        Some("void"),
+    );
+
+    menu_info.append(Some("Show About"), Some(actions::ids::A_ID_INFO!(app)));
+    menu_info.append_section(Some("versions"), &menu_info_versions);
 
     menu.append_submenu(Some("Connection"), &menu_connection);
     menu.append_submenu(Some("Settings"), &menu_settings);
