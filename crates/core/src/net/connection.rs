@@ -8,7 +8,7 @@ use tokio::{
 
 use crate::{
     error::CoreResult,
-    identity::{ContactIdentity, UserIdentity},
+    identity::{ContactIdentity, Identity, UserIdentity},
 };
 
 static NOISE_PARAMS: LazyLock<NoiseParams> = LazyLock::new(|| {
@@ -35,6 +35,7 @@ macro_rules! delegate {
 #[must_use]
 pub struct P2PConnection {
     stream: net::TcpStream,
+    peer_identity: Option<Identity>,
 }
 
 impl Connection {
@@ -56,8 +57,7 @@ impl Connection {
     }
 
     pub(crate) async fn disconnect(self) -> CoreResult<()> {
-        // i guess it does disconnection tings on drop?
-        Ok(())
+        delegate!(self, disconnect().await)
     }
 
     pub(crate) async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
@@ -66,15 +66,12 @@ impl Connection {
 }
 
 impl P2PConnection {
-    pub(crate) async fn connect_to(
-        remote: std::net::SocketAddr,
-        user: &UserIdentity,
-    ) -> CoreResult<Self> {
+    async fn connect_to(remote: std::net::SocketAddr, user: &UserIdentity) -> CoreResult<Self> {
         let tcp_stream = net::TcpStream::connect(remote).await?;
         todo!()
     }
 
-    pub(crate) async fn connect_from(
+    async fn connect_from(
         tcp_stream: net::TcpStream,
         remote: std::net::SocketAddr,
         user: &UserIdentity,
@@ -82,7 +79,11 @@ impl P2PConnection {
         todo!()
     }
 
-    pub(crate) async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
+    async fn disconnect(self) -> CoreResult<()> {
+        todo!()
+    }
+
+    async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
         todo!()
     }
 

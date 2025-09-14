@@ -20,6 +20,12 @@ pub enum CoreError {
     NoUserIdentity,
     #[error("Noise protocol error: {0}")]
     Noise(#[from] snow::Error),
+    #[error(
+        "Tried to create a frame for the transport layer that is too large ({0} >= MAX_FRAME_SIZE)"
+    )]
+    FrameTooLarge(usize),
+    #[error("Frame length is over 2 byte long: {0}")]
+    FrameLengthOverU16(usize),
 }
 
 #[derive(Debug, Error)]

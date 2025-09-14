@@ -12,6 +12,7 @@ use crate::{
 };
 
 pub mod connection;
+pub mod frame;
 mod jobs;
 
 #[derive(Debug, Clone)]
