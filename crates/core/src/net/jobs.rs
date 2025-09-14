@@ -89,7 +89,7 @@ impl State {
         connection: Connection,
     ) -> CoreResult<NetworkEvent> {
         debug!("Initializing TLS connection for {remote}");
-        let remote_identity: Identity = connection.peer_identity().await?;
+        let remote_identity = connection.peer_identity().await.clone();
 
         match self.active_connections.entry(remote) {
             // we already have a connection with this socket addr???
