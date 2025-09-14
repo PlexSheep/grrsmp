@@ -21,7 +21,7 @@ pub struct Identity {
 pub struct UserIdentity {
     pub identity: Identity,
     pub username: String,
-    private_key: SigningKey,
+    pub private_key: SigningKey,
     pub created: DateTime<Utc>,
 }
 
@@ -34,6 +34,7 @@ pub struct ContactIdentity {
 }
 
 impl Identity {
+    /// Creates a new [`Identity`].
     pub fn new(username: &str, public_key: VerifyingKey) -> Self {
         Self {
             username: username.to_string(),
@@ -41,17 +42,20 @@ impl Identity {
         }
     }
 
+    /// Returns a reference to the username of this [`Identity`].
     pub fn username(&self) -> &str {
         &self.username
     }
 }
 
 impl UserIdentity {
+    /// Creates a new [`UserIdentity`].
     pub fn new(username: &str) -> Self {
         let key = generate_good_key();
         Self::load(username, key, Utc::now())
     }
 
+    /// Create a [`UserIdentity`] from the necessary values.
     pub fn load(username: &str, key: SigningKey, created: DateTime<Utc>) -> Self {
         let identity = Identity::new(username, key.verifying_key());
         Self {
@@ -61,9 +65,15 @@ impl UserIdentity {
             created,
         }
     }
+
+    /// Returns a reference to the private key of this [`UserIdentity`].
+    pub fn private_key(&self) -> &SigningKey {
+        &self.private_key
+    }
 }
 
 impl ContactIdentity {
+    /// Creates a new [`ContactIdentity`].
     pub fn new(
         username: &str,
         public_key: VerifyingKey,
@@ -80,10 +90,12 @@ impl ContactIdentity {
         }
     }
 
+    /// Sets the last-seen timestamp of this [`ContactIdentity`].
     pub fn set_last_seen(&mut self, last_seen: DateTime<Utc>) {
         self.last_seen = last_seen;
     }
 
+    /// Get a dummy [`ContactIdentity`], only available in debug mode.
     #[cfg(debug_assertions)]
     pub fn debug_contact() -> Self {
         let key = generate_good_key();
