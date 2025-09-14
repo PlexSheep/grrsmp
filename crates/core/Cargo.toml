@@ -21,6 +21,7 @@ rand.workspace = true
 serde.workspace = true
 log.workspace = true
 tokio.workspace = true
+tokio-stream.workspace = true
 thiserror = "2"
 async-channel.workspace = true
-snow = { version = "0.10", features = ["use-curve25519", "use-aes-gcm", "use-sha2", "std"] }
+snow = { version = "0.10", features = ["use-curve25519", "use-chacha20poly1305", "use-blake2", "std"], default-features = false }

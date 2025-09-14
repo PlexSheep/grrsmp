@@ -19,7 +19,7 @@ chrono = {version = "0.4", features = ["serde"]}
 grrsmp-core = {path = "./crates/core/"}
 ed25519-dalek = { version = "2", features = ["batch", "serde"] }
 serde = { version = "1", features = ["derive"] }
-rand = "0.8"
+rand = "0.8" # not the most recent version, since the rand-core dependency needs to be in sync with that in ed25519-dalek (which is not reexported)
 log = "0.4"
 # TODO: consider not using full tokio to reduce compile time
 tokio = { version = "1", features = ["full"] }
