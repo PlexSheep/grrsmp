@@ -8,7 +8,7 @@ use tokio::{
 };
 
 use crate::{
-    error::{CoreError, CoreResult},
+    error::CoreResult,
     identity::ContactIdentity,
     net::{NetworkCommand, NetworkEvent, connection::Connection},
     state::{ConnectionData, State, StateSync},

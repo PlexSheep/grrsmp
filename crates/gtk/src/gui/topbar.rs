@@ -1,6 +1,6 @@
 use gtk::{gio, prelude::*};
 
-use crate::{actions, gui::label, state::GrrtkStateRef, utils::version};
+use crate::{actions, gui::label, state::GrrtkStateRef};
 
 pub(crate) fn widget_topbar(
     _app: &gtk::Application,
