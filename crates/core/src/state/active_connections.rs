@@ -6,7 +6,7 @@ use std::{
 
 use ed25519_dalek::VerifyingKey;
 
-use crate::{identity::ContactIdentity, net::connection::Connection};
+use crate::{identity::Identity, net::connection::Connection};
 
 #[derive(Debug, Default)]
 pub struct ActiveConnections {
@@ -16,7 +16,7 @@ pub struct ActiveConnections {
 #[derive(Debug)]
 pub struct ConnectionData {
     pub conn: Connection,
-    pub iden: ContactIdentity,
+    pub iden: Identity,
 }
 
 impl ActiveConnections {
@@ -27,12 +27,11 @@ impl ActiveConnections {
     pub fn find_socket_addr_for_contact(&self, key: &VerifyingKey) -> Option<SocketAddr> {
         let mut kv: Vec<(&SocketAddr, &ConnectionData)> = self.inner.iter().collect();
         kv.sort();
-        let correct_idx = match kv.binary_search_by_key(&key.as_bytes(), |(_, v)| {
-            v.iden.identity.public_key.as_bytes()
-        }) {
-            Ok(idx) => idx,
-            Err(_) => return None,
-        };
+        let correct_idx =
+            match kv.binary_search_by_key(&key.as_bytes(), |(_, v)| v.iden.public_key.as_bytes()) {
+                Ok(idx) => idx,
+                Err(_) => return None,
+            };
         let conn = kv[correct_idx];
         Some(*conn.0)
     }
@@ -62,10 +61,9 @@ impl PartialOrd for ConnectionData {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(
             self.iden
-                .identity
                 .public_key
                 .as_bytes()
-                .cmp(other.iden.identity.public_key.as_bytes()),
+                .cmp(other.iden.public_key.as_bytes()),
         )
     }
 }
@@ -75,9 +73,8 @@ impl Eq for ConnectionData {}
 impl Ord for ConnectionData {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.iden
-            .identity
             .public_key
             .as_bytes()
-            .cmp(other.iden.identity.public_key.as_bytes())
+            .cmp(other.iden.public_key.as_bytes())
     }
 }

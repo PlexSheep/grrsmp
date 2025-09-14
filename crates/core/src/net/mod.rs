@@ -12,7 +12,6 @@ use crate::{
 };
 
 pub mod connection;
-pub mod frame;
 mod jobs;
 
 #[derive(Debug, Clone)]
@@ -77,14 +76,6 @@ impl State {
             State::job_network_listener,
             rt,
             "network listener job has failed"
-        );
-        start_backend_job!(
-            rc_state,
-            command_channel,
-            event_channel,
-            State::job_network_monitor_connections,
-            rt,
-            "network monitor connections job has failed"
         );
         info!("Background workers have started");
         Ok(())

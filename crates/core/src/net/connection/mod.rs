@@ -1,17 +1,16 @@
-use std::{pin::Pin, sync::LazyLock};
+use std::sync::LazyLock;
 
 use snow::params::NoiseParams;
-use tokio::{
-    io::{self, AsyncRead, AsyncWrite},
-    net,
-};
+use tokio::net;
 
 use crate::{
     error::CoreResult,
     identity::{ContactIdentity, Identity, UserIdentity},
 };
 
-static NOISE_PARAMS: LazyLock<NoiseParams> = LazyLock::new(|| {
+mod frame;
+
+pub static NOISE_PARAMS: LazyLock<NoiseParams> = LazyLock::new(|| {
     "Noise_XX_25519_ChaChaPoly_Blake2s"
         .parse()
         .expect("noise parameter string is malformed")
@@ -60,7 +59,7 @@ impl Connection {
         delegate!(self, disconnect().await)
     }
 
-    pub(crate) async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
+    pub(crate) async fn peer_identity(&self) -> CoreResult<Identity> {
         delegate!(self, peer_identity().await)
     }
 }
@@ -68,6 +67,7 @@ impl Connection {
 impl P2PConnection {
     async fn connect_to(remote: std::net::SocketAddr, user: &UserIdentity) -> CoreResult<Self> {
         let tcp_stream = net::TcpStream::connect(remote).await?;
+        let mut noise = Self::noise_initiator()?;
         todo!()
     }
 
@@ -76,6 +76,7 @@ impl P2PConnection {
         remote: std::net::SocketAddr,
         user: &UserIdentity,
     ) -> CoreResult<Self> {
+        let mut noise = Self::noise_responder()?;
         todo!()
     }
 
@@ -83,7 +84,7 @@ impl P2PConnection {
         todo!()
     }
 
-    async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
+    async fn peer_identity(&self) -> CoreResult<Identity> {
         todo!()
     }
 
@@ -97,47 +98,5 @@ impl P2PConnection {
 
     fn noise_responder() -> CoreResult<snow::HandshakeState> {
         Ok(Self::noise_builder().build_responder()?)
-    }
-}
-
-impl io::AsyncRead for Connection {
-    fn poll_read(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-        buf: &mut io::ReadBuf<'_>,
-    ) -> std::task::Poll<std::io::Result<()>> {
-        match self.get_mut() {
-            Self::P2P(c) => Pin::new(&mut c.stream).poll_read(cx, buf),
-        }
-    }
-}
-
-impl io::AsyncWrite for Connection {
-    fn poll_write(
-        self: Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-        buf: &[u8],
-    ) -> std::task::Poll<Result<usize, std::io::Error>> {
-        match self.get_mut() {
-            Self::P2P(c) => Pin::new(&mut c.stream).poll_write(cx, buf),
-        }
-    }
-
-    fn poll_flush(
-        self: Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Result<(), std::io::Error>> {
-        match self.get_mut() {
-            Self::P2P(c) => Pin::new(&mut c.stream).poll_flush(cx),
-        }
-    }
-
-    fn poll_shutdown(
-        self: Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Result<(), std::io::Error>> {
-        match self.get_mut() {
-            Self::P2P(c) => Pin::new(&mut c.stream).poll_shutdown(cx),
-        }
     }
 }

@@ -9,7 +9,7 @@ use tokio::{
 
 use crate::{
     error::{CoreError, CoreResult},
-    identity::ContactIdentity,
+    identity::{ContactIdentity, Identity},
     net::{NetworkCommand, NetworkEvent, connection::Connection},
     state::{ConnectionData, State, StateSync},
 };
@@ -26,19 +26,7 @@ impl State {
         Ok(())
     }
 
-    pub(crate) async fn job_network_monitor_connections(
-        state: &StateSync,
-        _command_channel: &mut Receiver<NetworkCommand>,
-        _event_channel: &mut Sender<NetworkEvent>,
-    ) -> CoreResult<()> {
-        let mut buf = Vec::with_capacity(256);
-        for (remote, connection) in state.write().await.active_connections.iter_mut() {
-            connection.conn.read_to_end(&mut buf).await?;
-            debug!("received data from {remote}: {buf:?}");
-            buf.clear();
-        }
-        Ok(())
-    }
+    // TODO: monitor connection or something? or create a job for each connection anyways?
 
     pub(crate) async fn job_network_listener(
         state: &StateSync,
@@ -101,7 +89,7 @@ impl State {
         connection: Connection,
     ) -> CoreResult<NetworkEvent> {
         debug!("Initializing TLS connection for {remote}");
-        let remote_identity: ContactIdentity = connection.peer_identity().await?;
+        let remote_identity: Identity = connection.peer_identity().await?;
 
         match self.active_connections.entry(remote) {
             // we already have a connection with this socket addr???
@@ -118,7 +106,7 @@ impl State {
 
         Ok(NetworkEvent::ConnectionEstablished(
             remote,
-            remote_identity.identity.public_key,
+            remote_identity.public_key,
         ))
     }
 
