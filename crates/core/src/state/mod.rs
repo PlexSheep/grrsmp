@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::{chat::Chat, identity::UserIdentity};
 pub type StateSync = Arc<tokio::sync::RwLock<State>>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct State {
     pub known_identities: KnownIdentities,
     pub chats: HashMap<VerifyingKey, Chat>,
@@ -26,17 +26,5 @@ pub struct State {
 impl State {
     pub fn to_sync(self) -> StateSync {
         Arc::new(tokio::sync::RwLock::new(self))
-    }
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self {
-            known_identities: Default::default(),
-            chats: Default::default(),
-            active_connections: Default::default(),
-            user_identity: Default::default(),
-            listener: Default::default(),
-        }
     }
 }

@@ -1,18 +1,14 @@
-use std::{
-    pin::Pin,
-    sync::{Arc, LazyLock},
-};
+use std::{pin::Pin, sync::LazyLock};
 
 use snow::params::NoiseParams;
 use tokio::{
-    io::{self, AsyncRead, AsyncWrite, AsyncWriteExt},
+    io::{self, AsyncRead, AsyncWrite},
     net,
 };
 
 use crate::{
     error::CoreResult,
     identity::{ContactIdentity, UserIdentity},
-    state::State,
 };
 
 static NOISE_PARAMS: LazyLock<NoiseParams> = LazyLock::new(|| {
