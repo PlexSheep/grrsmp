@@ -8,7 +8,7 @@ use tokio::{
 };
 
 use crate::{
-    error::CoreResult,
+    error::{CoreError, CoreResult},
     identity::ContactIdentity,
     net::{NetworkCommand, NetworkEvent, connection::Connection},
     state::{ConnectionData, State, StateSync},
@@ -101,7 +101,7 @@ impl State {
         connection: Connection,
     ) -> CoreResult<NetworkEvent> {
         debug!("Initializing TLS connection for {remote}");
-        let remote_identity: ContactIdentity = connection.identity_exchange(&self).await?;
+        let remote_identity: ContactIdentity = connection.peer_identity().await?;
 
         match self.active_connections.entry(remote) {
             // we already have a connection with this socket addr???
@@ -123,7 +123,11 @@ impl State {
     }
 
     async fn connect_to(&mut self, remote: SocketAddr) -> CoreResult<NetworkEvent> {
-        let connection = Connection::connect(remote, self.tls_config.clone()).await?;
+        let user_identity = self
+            .user_identity
+            .as_ref()
+            .ok_or(CoreError::NoUserIdentity)?;
+        let connection = Connection::connect_to(remote, user_identity).await?;
         self.init_connection(remote, connection).await
     }
 
@@ -132,8 +136,11 @@ impl State {
         stream: net::TcpStream,
         remote: SocketAddr,
     ) -> CoreResult<NetworkEvent> {
-        let connection =
-            Connection::from_tcp_socket(stream, remote, self.tls_config.clone()).await?;
+        let user_identity = self
+            .user_identity
+            .as_ref()
+            .ok_or(CoreError::NoUserIdentity)?;
+        let connection = Connection::connect_from(stream, remote, user_identity).await?;
         self.init_connection(remote, connection).await
     }
 

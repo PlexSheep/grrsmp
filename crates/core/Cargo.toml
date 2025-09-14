@@ -7,17 +7,20 @@ license = {workspace = true}
 homepage = {workspace = true}
 repository = {workspace = true}
 authors = {workspace = true}
+rust-version = {workspace = true}
 description = "Secure Chat with P2P or relayed connections"
 readme = "README.md"
 
+[lints]
+workspace = true
+
 [dependencies]
 chrono.workspace = true
-ring.workspace = true
 ed25519-dalek.workspace = true
 rand.workspace = true
 serde.workspace = true
 log.workspace = true
 tokio.workspace = true
-thiserror = "2.0.16"
-tokio-rustls = { version = "0.26.2", default-features = false, features = ["ring", "logging"] }
+thiserror = "2"
 async-channel.workspace = true
+snow = { version = "0.10", features = ["use-curve25519", "use-aes-gcm", "use-sha2", "std"] }

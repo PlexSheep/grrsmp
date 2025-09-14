@@ -7,18 +7,23 @@ description = "Secure Chat with P2P or relayed connections"
 readme = "README.md"
 homepage = "https://github.com/PlexSheep/grrsmp"
 repository = "https://github.com/PlexSheep/grrsmp"
+rust-version = "1.85.1" # msrv
 
+[workspace.lints.clippy]
+# Prefer TryFrom between integers unless truncation is desired.
+# For converting between floats and integers, there may not be an alternative.
+cast_possible_truncation = "warn"
 
 [workspace.dependencies]
-chrono = {version = "0.4.42", features = ["serde"]}
+chrono = {version = "0.4", features = ["serde"]}
 grrsmp-core = {path = "./crates/core/"}
-ring = { version = "0.17.14", features = ["std"] }
-#rustls = { version = "0.23.31", features = ["logging", "ring", "std"], default-features = false }
-ed25519-dalek = { version = "2.2.0", features = ["batch", "serde"] }
-serde = { version = "1.0.219", features = ["derive"] }
-rand = "0.8.5"
-log = "0.4.28"
-tokio = { version = "1.47.1", features = ["net", "rt", "rt-multi-thread", "tokio-macros", "sync", "io-util", "time"] }
+ed25519-dalek = { version = "2", features = ["batch", "serde"] }
+serde = { version = "1", features = ["derive"] }
+rand = "0.8"
+log = "0.4"
+# TODO: consider not using full tokio to reduce compile time
+tokio = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["full"] }
 async-channel = "2.5.0"
 
 [workspace]

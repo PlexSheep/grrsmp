@@ -8,7 +8,6 @@ use std::{collections::HashMap, sync::Arc};
 
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
-use tokio_rustls::rustls;
 
 use crate::{chat::Chat, identity::UserIdentity};
 pub type StateSync = Arc<tokio::sync::RwLock<State>>;
@@ -20,8 +19,6 @@ pub struct State {
     #[serde(skip)]
     pub active_connections: ActiveConnections,
     pub user_identity: Option<UserIdentity>,
-    #[serde(skip, default = "default_config")]
-    pub(crate) tls_config: Arc<rustls::ClientConfig>,
     #[serde(skip)]
     pub listener: Option<TcpListener>,
 }
@@ -39,12 +36,7 @@ impl Default for State {
             chats: Default::default(),
             active_connections: Default::default(),
             user_identity: Default::default(),
-            tls_config: default_config(),
             listener: Default::default(),
         }
     }
-}
-
-fn default_config() -> Arc<rustls::ClientConfig> {
-    Arc::new(crate::net::connection::tls_config())
 }

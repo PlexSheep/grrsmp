@@ -13,7 +13,6 @@ use crate::{
 
 pub mod connection;
 mod jobs;
-pub mod verifier;
 
 #[derive(Debug, Clone)]
 #[allow(clippy::large_enum_variant)]

@@ -1,13 +1,25 @@
-use std::{pin::Pin, sync::Arc};
+use std::{
+    pin::Pin,
+    sync::{Arc, LazyLock},
+};
 
-use rustls::{ClientConfig, pki_types::ServerName};
+use snow::params::NoiseParams;
 use tokio::{
     io::{self, AsyncRead, AsyncWrite, AsyncWriteExt},
     net,
 };
-use tokio_rustls::{TlsConnector, TlsStream, rustls};
 
-use crate::{error::CoreResult, identity::ContactIdentity, state::State};
+use crate::{
+    error::CoreResult,
+    identity::{ContactIdentity, UserIdentity},
+    state::State,
+};
+
+static NOISE_PARAMS: LazyLock<NoiseParams> = LazyLock::new(|| {
+    "Noise_XX_25519_ChaChaPoly_Blake2s"
+        .parse()
+        .expect("noise parameter string is malformed")
+});
 
 #[derive(Debug)]
 #[must_use]
@@ -26,24 +38,24 @@ macro_rules! delegate {
 #[derive(Debug)]
 #[must_use]
 pub struct P2PConnection {
-    stream: TlsStream<net::TcpStream>,
+    stream: net::TcpStream,
 }
 
 impl Connection {
-    pub(crate) async fn connect(
+    pub(crate) async fn connect_to(
         remote: std::net::SocketAddr,
-        config: Arc<ClientConfig>,
+        user: &UserIdentity,
     ) -> CoreResult<Self> {
-        Ok(Self::P2P(P2PConnection::connect(remote, config).await?))
+        Ok(Self::P2P(P2PConnection::connect_to(remote, user).await?))
     }
 
-    pub(crate) async fn from_tcp_socket(
+    pub(crate) async fn connect_from(
         stream: net::TcpStream,
         remote: std::net::SocketAddr,
-        config: Arc<ClientConfig>,
+        user: &UserIdentity,
     ) -> CoreResult<Self> {
         Ok(Self::P2P(
-            P2PConnection::from_tcp_socket(stream, remote, config).await?,
+            P2PConnection::connect_from(stream, remote, user).await?,
         ))
     }
 
@@ -52,45 +64,43 @@ impl Connection {
         Ok(())
     }
 
-    pub(crate) async fn identity_exchange(
-        &self,
-        state: &&mut State,
-    ) -> CoreResult<ContactIdentity> {
-        todo!()
+    pub(crate) async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
+        delegate!(self, peer_identity().await)
     }
 }
 
 impl P2PConnection {
-    pub(crate) async fn connect(
+    pub(crate) async fn connect_to(
         remote: std::net::SocketAddr,
-        config: Arc<ClientConfig>,
+        user: &UserIdentity,
     ) -> CoreResult<Self> {
         let tcp_stream = net::TcpStream::connect(remote).await?;
-        Self::from_tcp_socket(tcp_stream, remote, config).await
+        todo!()
     }
 
-    pub(crate) async fn from_tcp_socket(
-        mut tcp_stream: net::TcpStream,
+    pub(crate) async fn connect_from(
+        tcp_stream: net::TcpStream,
         remote: std::net::SocketAddr,
-        config: Arc<ClientConfig>,
+        user: &UserIdentity,
     ) -> CoreResult<Self> {
-        tcp_stream.write_all(b"Hello world").await?;
-
-        let remote_name = ServerName::IpAddress(remote.ip().into());
-        let connector = TlsConnector::from(config);
-        let client_stream: tokio_rustls::client::TlsStream<net::TcpStream> =
-            connector.connect(remote_name, tcp_stream).await?;
-        let stream = tokio_rustls::TlsStream::Client(client_stream);
-
-        Ok(Self { stream })
+        todo!()
     }
-}
 
-pub fn tls_config() -> ClientConfig {
-    ClientConfig::builder()
-        .dangerous()
-        .with_custom_certificate_verifier(Arc::new(super::verifier::TLSVerifier))
-        .with_no_client_auth() // TODO: client auth might be something i want?
+    pub(crate) async fn peer_identity(&self) -> CoreResult<ContactIdentity> {
+        todo!()
+    }
+
+    fn noise_builder() -> snow::Builder<'static> {
+        snow::Builder::new(NOISE_PARAMS.clone())
+    }
+
+    fn noise_initiator() -> CoreResult<snow::HandshakeState> {
+        Ok(Self::noise_builder().build_initiator()?)
+    }
+
+    fn noise_responder() -> CoreResult<snow::HandshakeState> {
+        Ok(Self::noise_builder().build_responder()?)
+    }
 }
 
 impl io::AsyncRead for Connection {
