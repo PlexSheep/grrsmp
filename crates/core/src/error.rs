@@ -1,3 +1,5 @@
+use std::net::SocketAddr;
+
 use thiserror::Error;
 
 use crate::net::{NetworkCommand, NetworkEvent};
@@ -16,16 +18,30 @@ pub enum CoreError {
     ChannelSendEvent(#[from] async_channel::SendError<NetworkEvent>),
     #[error("Could send a network command to the over the local async channel")]
     ChannelSendCmd(#[from] async_channel::SendError<NetworkCommand>),
-    #[error("No user identity currently exists")]
-    NoUserIdentity,
     #[error("Noise protocol error: {0}")]
     Noise(#[from] snow::Error),
+    #[error("MessagePack encode error: {0}")]
+    MessagePackEncode(#[from] rmp_serde::encode::Error),
+    #[error("MessagePack decode error: {0}")]
+    MessagePackDecode(#[from] rmp_serde::decode::Error),
+    // custom Errors
+    #[error("No user identity currently exists")]
+    NoUserIdentity,
     #[error(
         "Tried to create a frame for the transport layer that is too large ({0} >= MAX_FRAME_SIZE)"
     )]
     FrameTooLarge(usize),
     #[error("Frame length is over 2 byte long: {0}")]
     FrameLengthOverU16(usize),
+    #[error("Could not get the public key of peer ({0}) during the connection initialization")]
+    NoisePeerHasNoPublicKey(SocketAddr),
+    #[error("Public key of peer ({0}) is malformed")]
+    PeerKeyIsMalformed(SocketAddr),
+    #[error("Public key of peer ({remote}) is invalid: {source}")]
+    PeerKeyIsInvalid {
+        remote: SocketAddr,
+        source: ed25519_dalek::SignatureError,
+    },
 }
 
 #[derive(Debug, Error)]
