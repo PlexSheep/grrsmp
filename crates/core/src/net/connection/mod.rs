@@ -80,17 +80,17 @@ impl P2PConnection {
 
                 log::debug!("Sending Noise: `XX: --> e`");
                 len = noise.write_message(&[], &mut buf)?;
-                Frame::raw(&buf[..len])?.send(&mut tcp_stream).await?;
+                Frame::raw(&buf[..len])?.send(tcp_stream).await?;
                 debug_assert_eq!(len, 0); // only protocol stuff
 
                 log::debug!("Receiving: `XX: <-- e, ee, s, es`");
-                frame = Frame::recv(&mut tcp_stream).await?;
+                frame = Frame::recv(tcp_stream).await?;
                 len = noise.read_message(frame.data(), &mut buf)?;
                 debug_assert_eq!(len, 0); // only protocol stuff
 
                 log::debug!("Sending Noise: `XX: --> s, se`");
                 len = noise.write_message(&[], &mut buf)?;
-                Frame::raw(&buf[..len])?.send(&mut tcp_stream).await?;
+                Frame::raw(&buf[..len])?.send(tcp_stream).await?;
                 debug_assert_eq!(len, 0); // only protocol stuff
 
                 log::debug!("Finished noise handshake");
@@ -111,10 +111,10 @@ impl P2PConnection {
 
                 log::debug!("Sending identity to peer");
                 len = transport.write_message(&rmp_serde::to_vec(&user.identity)?, &mut buf)?;
-                Frame::raw(&buf[..len])?.send(&mut tcp_stream).await?;
+                Frame::raw(&buf[..len])?.send(tcp_stream).await?;
 
                 log::debug!("Receiving identity from peer");
-                frame = Frame::recv(&mut tcp_stream).await?;
+                frame = Frame::recv(tcp_stream).await?;
                 len = transport.read_message(frame.data(), &mut buf)?;
                 let peer_identity: Identity = rmp_serde::from_slice(&buf[..len])?;
 
@@ -142,11 +142,11 @@ impl P2PConnection {
     }
 
     async fn connect_from(
-        mut tcp_stream: net::TcpStream,
+        tcp_stream: net::TcpStream,
         remote: std::net::SocketAddr,
         user: &UserIdentity,
     ) -> CoreResult<Self> {
-        let mut noise = Self::noise_responder()?;
+        let noise = Self::noise_responder()?;
         todo!()
     }
 

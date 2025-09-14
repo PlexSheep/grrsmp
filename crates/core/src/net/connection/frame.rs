@@ -6,10 +6,7 @@ use tokio::{
     net,
 };
 
-use crate::{
-    chat::messages::Message,
-    error::{CoreError, CoreResult},
-};
+use crate::error::{CoreError, CoreResult};
 
 pub(super) const MAX_FRAME_SIZE: usize = 65535;
 
