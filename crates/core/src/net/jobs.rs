@@ -9,7 +9,6 @@ use tokio::{
 
 use crate::{
     error::{CoreError, CoreResult},
-    identity::Identity,
     net::{NetworkCommand, NetworkEvent, connection::Connection},
     state::{ConnectionData, State, StateSync},
 };
