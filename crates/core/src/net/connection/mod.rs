@@ -145,8 +145,6 @@ impl P2PConnection {
         noise: snow::HandshakeState,
         remote: std::net::SocketAddr,
     ) -> CoreResult<(Identity, TransportState)> {
-        log::debug!("Receiving identity from peer");
-
         // GRRSMP uses the identity keys as the noise static key.
         let remote_static_key = noise
             .get_remote_static()
@@ -161,13 +159,21 @@ impl P2PConnection {
 
         let mut transport = noise.into_transport_mode()?;
 
-        let frame = Frame::recv(stream).await?;
-        let mut len = transport.read_message(frame.data(), buf)?;
-        let peer_identity: Identity = rmp_serde::from_slice(&buf[..len])?;
+        // both send before receiving, then listen for the incoming identity response
+        // That way, the identity exchange is simultaneous and we dont need to program an order of
+        // who sends first
 
         log::debug!("Sending identity to peer");
-        len = transport.write_message(&rmp_serde::to_vec(&user.identity)?, buf)?;
+        let mut len = transport.write_message(&rmp_serde::to_vec(&user.identity)?, buf)?;
         Frame::raw(&buf[..len])?.send(stream).await?;
+
+        log::debug!("Receiving identity from peer");
+        let frame = Frame::recv(stream).await?;
+        len = transport.read_message(frame.data(), buf)?;
+        let peer_identity: Identity = rmp_serde::from_slice(&buf[..len])?;
+
+        // FIXME: username might be a super long string, we should add some validator for the
+        // username.
 
         if peer_identity.public_key != peer_public_key {
             return Err(CoreError::PeerKeyIsInvalid {
