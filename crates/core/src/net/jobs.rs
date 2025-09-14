@@ -59,9 +59,11 @@ impl State {
             let evt_c = event_channel.clone();
             let cmd_c = command_channel.clone();
             tokio::spawn(async move {
-                Self::handle_incoming_connection(state_c, stream, remote, evt_c, cmd_c)
-                    .await
-                    .expect("error while handling incomming connection")
+                if let Err(e) =
+                    Self::handle_incoming_connection(state_c, stream, remote, evt_c, cmd_c).await
+                {
+                    log::error!("Error while handling incoming connection: {e}")
+                }
             });
         } else {
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await
@@ -155,24 +157,9 @@ impl State {
         event_channel: Sender<NetworkEvent>,
         _command_channel: Receiver<NetworkCommand>,
     ) -> CoreResult<()> {
-        match state.write().await.connect_from(stream, remote).await {
-            Ok(event) => {
-                event_channel.send(event).await?;
-            }
-            Err(err) => match &err {
-                CoreError::IO(e) => {
-                    if matches!(e.kind(), std::io::ErrorKind::ConnectionReset) {
-                        info!("Bad connection attempt from {remote}");
-                        event_channel
-                            .send(NetworkEvent::ConnectionReset(remote))
-                            .await?;
-                    } else {
-                        return Err(err);
-                    }
-                }
-                _ => return Err(err),
-            },
-        };
+        let event = state.write().await.connect_from(stream, remote).await?;
+        event_channel.send(event).await?;
+
         Ok(())
     }
 }
