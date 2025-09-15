@@ -109,10 +109,6 @@ ContactIdentity {
     last_seen: DateTime<Utc>
 }
 
-Trust {
-
-}
-
 Trust := Unknown | Trusted | Rejected
 
 Username := UTF-8String (1-40 characters)
