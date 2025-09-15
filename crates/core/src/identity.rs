@@ -70,7 +70,7 @@ impl Identity {
 
     pub fn validate_username(username: &str) -> CoreResult<()> {
         let chars_len = username.chars().count();
-        if (1..=40).contains(&chars_len) {
+        if !(1..=40).contains(&chars_len) {
             Err(crate::error::CoreError::InvalidUsername)
         } else {
             Ok(())
