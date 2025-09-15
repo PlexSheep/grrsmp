@@ -34,11 +34,23 @@ The platform prioritizes user autonomy over operational simplicity. Users can op
 
 SREMP operates over TCP/IP with two distinct transport security layers depending on the communication type:
 
-```
-Application Layer:    SREMP Messages
-Encryption Layer:     Double Ratchet (message-level forward secrecy)
-Transport Security:   Noise Protocol (peer connections) | TLS 1.3 (rendezvous)
-Network Layer:        TCP/IP
+```mermaid
+graph TB
+    LA[Application Layer]
+    LE[Encryption Layer]
+    LT_TLS[Transport Layer - TLS 1.3]
+    LT_NOISE[Transport Layer - Noise]
+    LN[Network Layer]
+    L0[Internet]
+
+    LA -->|SREMP Messages| LE
+    LE -->|Double Ratchet end-to-end encryption| LT_NOISE
+    LT_NOISE -->|Noise Protocol for message connections| LN
+    LN -->|TCP/IP| L0
+
+    LA -->|Contact Lookups| LT_TLS
+    LT_TLS -->|TLS 1.3 for rendesvouz lookups| LN
+
 ```
 
 ### 2.2 Component Roles
