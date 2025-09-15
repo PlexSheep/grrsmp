@@ -1,8 +1,10 @@
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display};
 
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{SigningKey, VerifyingKey};
 use serde::{Deserialize, Serialize};
+
+use crate::error::CoreResult;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Trust {
@@ -13,14 +15,29 @@ pub enum Trust {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Identity {
-    pub username: String,
+    pub username: String, // TODO: 1 to 40 characters according to spec
     pub public_key: VerifyingKey,
+    pub flags: Flags,
+    pub extensions: Option<Extensions>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct Extensions {
+    pub profile_picture: Option<Vec<u8>>,
+    pub additional_metadata: HashMap<String, Vec<u8>>,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct Flags {
+    pub uses_relay: bool,
+    pub is_machine_account: bool,
+    pub is_relay_server: bool,
+    pub prefers_async: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UserIdentity {
     pub identity: Identity,
-    pub username: String,
     pub private_key: SigningKey,
     pub created: DateTime<Utc>,
 }
@@ -35,35 +52,48 @@ pub struct ContactIdentity {
 
 impl Identity {
     /// Creates a new [`Identity`].
-    pub fn new(username: &str, public_key: VerifyingKey) -> Self {
-        Self {
+    pub fn build(username: &str, public_key: VerifyingKey) -> CoreResult<Self> {
+        Self::validate_username(username)?;
+
+        Ok(Self {
             username: username.to_string(),
             public_key,
-        }
+            flags: Default::default(),
+            extensions: Default::default(),
+        })
     }
 
     /// Returns a reference to the username of this [`Identity`].
     pub fn username(&self) -> &str {
         &self.username
     }
+
+    pub fn validate_username(username: &str) -> CoreResult<()> {
+        let chars_len = username.chars().count();
+        if chars_len >= 1 && chars_len <= 40 {
+            Err(crate::error::CoreError::InvalidUsername)
+        }
+        else {
+            Ok(())
+        }
+    }
 }
 
 impl UserIdentity {
     /// Creates a new [`UserIdentity`].
-    pub fn new(username: &str) -> Self {
+    pub fn build(username: &str) -> CoreResult<Self> {
         let key = generate_good_key();
         Self::load(username, key, Utc::now())
     }
 
     /// Create a [`UserIdentity`] from the necessary values.
-    pub fn load(username: &str, key: SigningKey, created: DateTime<Utc>) -> Self {
-        let identity = Identity::new(username, key.verifying_key());
-        Self {
+    pub fn load(username: &str, key: SigningKey, created: DateTime<Utc>) -> CoreResult<Self> {
+        let identity = Identity::build(username, key.verifying_key())?;
+        Ok(Self {
             identity,
-            username: username.to_string(),
             private_key: key,
             created,
-        }
+        })
     }
 
     /// Returns a reference to the private key of this [`UserIdentity`].
@@ -74,20 +104,20 @@ impl UserIdentity {
 
 impl ContactIdentity {
     /// Creates a new [`ContactIdentity`].
-    pub fn new(
+    pub fn build(
         username: &str,
         public_key: VerifyingKey,
         trust: Trust,
         first_seen: DateTime<Utc>,
         last_seen: DateTime<Utc>,
-    ) -> Self {
-        let identity = Identity::new(username, public_key);
-        Self {
+    ) -> CoreResult<Self> {
+        let identity = Identity::build(username, public_key)?;
+        Ok(Self {
             identity,
             trust,
             first_seen,
             last_seen,
-        }
+        })
     }
 
     /// Sets the last-seen timestamp of this [`ContactIdentity`].
@@ -99,13 +129,13 @@ impl ContactIdentity {
     #[cfg(debug_assertions)]
     pub fn debug_contact() -> Self {
         let key = generate_good_key();
-        ContactIdentity::new(
+        ContactIdentity::build(
             "DEBUG_CONTACT",
             key.verifying_key(),
             Trust::Unknown,
             Utc::now(),
             Utc::now(),
-        )
+        ).unwrap()
     }
 }
 

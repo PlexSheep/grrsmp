@@ -42,6 +42,8 @@ pub enum CoreError {
         remote: SocketAddr,
         source: ed25519_dalek::SignatureError,
     },
+    #[error("The given username does not conform to the constraints of the specification")]
+    InvalidUsername,
 }
 
 #[derive(Debug, Error)]
