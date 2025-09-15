@@ -145,7 +145,7 @@ impl P2PConnection {
         noise: snow::HandshakeState,
         remote: std::net::SocketAddr,
     ) -> CoreResult<(Identity, TransportState)> {
-        // GRRSMP uses the identity keys as the noise static key.
+        // SREMP uses the identity keys as the noise static key.
         let remote_static_key = noise
             .get_remote_static()
             .ok_or(CoreError::NoisePeerHasNoPublicKey(remote))?;

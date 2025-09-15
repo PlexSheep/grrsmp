@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use gtk::prelude::*;
 
-use crate::state::GrrtkStateRef;
+use crate::state::AppStateRef;
 use crate::utils::GUI_SPACING_XXLARGE;
 
 pub(crate) mod chat;
@@ -15,7 +15,7 @@ use chat::*;
 use chats::*;
 use topbar::*;
 
-pub(crate) fn start_gui(app: &gtk::Application, state: GrrtkStateRef) {
+pub(crate) fn start_gui(app: &gtk::Application, state: AppStateRef) {
     let w_window_content = gtk::Box::builder()
         .overflow(gtk::Overflow::Hidden)
         .orientation(gtk::Orientation::Horizontal)

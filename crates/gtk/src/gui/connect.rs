@@ -1,9 +1,9 @@
-use crate::{gui::label, state::GrrtkStateRef, utils::GUI_SPACING_MID};
+use crate::{gui::label, state::AppStateRef, utils::GUI_SPACING_MID};
 
-use grrsmp_core::net::NetworkCommand;
 use gtk::prelude::*;
+use sremp_core::net::NetworkCommand;
 
-pub(crate) fn dialog_connect(app: &gtk::Application, state: GrrtkStateRef) {
+pub(crate) fn dialog_connect(app: &gtk::Application, state: AppStateRef) {
     let win_dialog = gtk::Window::builder()
         .modal(true)
         .default_width(300)

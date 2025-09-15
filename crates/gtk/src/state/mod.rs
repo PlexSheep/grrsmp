@@ -3,7 +3,7 @@ use ed25519_dalek::VerifyingKey;
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
-use grrsmp_core::{
+use sremp_core::{
     chat::Chat,
     error::CoreResult,
     net::{NetworkCommand, NetworkEvent},
@@ -13,10 +13,10 @@ use grrsmp_core::{
 pub(crate) mod tracked_widgets;
 use tracked_widgets::TrackedWidgets;
 
-type GrrStateRefInner = Rc<RefCell<GrrtkState>>;
+type AppStateRefInner = Rc<RefCell<AppState>>;
 
 #[derive(Debug)]
-pub(crate) struct GrrtkState {
+pub(crate) struct AppState {
     pub(crate) core: StateSync,
     pub(crate) command_channel: Sender<NetworkCommand>,
     pub(crate) event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
@@ -26,11 +26,11 @@ pub(crate) struct GrrtkState {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct GrrtkStateRef {
-    inner: GrrStateRefInner,
+pub(crate) struct AppStateRef {
+    inner: AppStateRefInner,
 }
 
-impl GrrtkState {
+impl AppState {
     #[must_use]
     pub(crate) fn new(
         command_channel: Sender<NetworkCommand>,
@@ -48,7 +48,6 @@ impl GrrtkState {
     }
 
     #[inline]
-    #[must_use]
     pub(crate) fn new_or_load(
         command_channel: Sender<NetworkCommand>,
         event_channel: Receiver<NetworkEvent>,
@@ -62,15 +61,14 @@ impl GrrtkState {
         }
     }
 
-    #[must_use]
     pub(crate) fn load(
         _command_channel: Sender<NetworkCommand>,
         _event_channel: Receiver<NetworkEvent>,
         _rt: tokio::runtime::Runtime,
     ) -> CoreResult<Self> {
         // TODO: impl load from disk
-        Err(grrsmp_core::error::CoreError::Load(
-            grrsmp_core::error::LoadError::Placeholder,
+        Err(sremp_core::error::CoreError::Load(
+            sremp_core::error::LoadError::Placeholder,
         ))
     }
 
@@ -94,8 +92,8 @@ impl GrrtkState {
 
     #[must_use]
     #[inline]
-    pub(crate) fn into_ref(self) -> GrrtkStateRef {
-        GrrtkStateRef::new(self)
+    pub(crate) fn into_ref(self) -> AppStateRef {
+        AppStateRef::new(self)
     }
 
     pub(crate) fn core(&self) -> RwLockReadGuard<'_, State> {
@@ -123,18 +121,18 @@ impl GrrtkState {
     }
 }
 
-impl GrrtkStateRef {
+impl AppStateRef {
     #[must_use]
     #[inline]
-    pub(crate) fn new(state: GrrtkState) -> Self {
+    pub(crate) fn new(state: AppState) -> Self {
         Self {
             inner: Rc::new(RefCell::new(state)),
         }
     }
 }
 
-impl Deref for GrrtkStateRef {
-    type Target = GrrStateRefInner;
+impl Deref for AppStateRef {
+    type Target = AppStateRefInner;
 
     fn deref(&self) -> &Self::Target {
         &self.inner

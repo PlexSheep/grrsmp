@@ -3,21 +3,21 @@
 #![deny(clippy::await_holding_refcell_ref)]
 #![deny(clippy::await_holding_lock)]
 
-use grrsmp_core::net::NetworkEvent;
 use log::trace;
+use sremp_core::net::NetworkEvent;
 
-use crate::state::GrrtkStateRef;
+use crate::state::AppStateRef;
 
 use gtk::glib;
 
-pub(super) fn start_jobs(state: GrrtkStateRef) {
+pub(super) fn start_jobs(state: AppStateRef) {
     glib::spawn_future_local(event_processor(state));
 }
 
-async fn event_processor(state: GrrtkStateRef) {
+async fn event_processor(state: AppStateRef) {
     loop {
         {
-            let state_bind: std::cell::Ref<'_, crate::state::GrrtkState> = state.borrow();
+            let state_bind: std::cell::Ref<'_, crate::state::AppState> = state.borrow();
             if let Ok(event) = state_bind.event_channel.try_recv() {
                 log::info!("Processing network event: {event}");
 
@@ -46,7 +46,7 @@ async fn event_processor(state: GrrtkStateRef) {
     }
 }
 
-fn update_listener_label(state: &std::cell::Ref<'_, crate::state::GrrtkState>) {
+fn update_listener_label(state: &std::cell::Ref<'_, crate::state::AppState>) {
     trace!("updating listener label");
     let new_text = state.fmt_listen_status();
     state

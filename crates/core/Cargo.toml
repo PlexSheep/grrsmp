@@ -1,5 +1,5 @@
 [package]
-name = "grrsmp-core"
+name = "sremp-core"
 version = "0.1.0"
 edition = {workspace = true}
 publish = {workspace = true}

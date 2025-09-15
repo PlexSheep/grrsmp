@@ -1,11 +1,8 @@
 use gtk::{gio, prelude::*};
 
-use crate::{actions, gui::label, state::GrrtkStateRef};
+use crate::{actions, gui::label, state::AppStateRef};
 
-pub(crate) fn widget_topbar(
-    _app: &gtk::Application,
-    state: GrrtkStateRef,
-) -> impl IsA<gtk::Widget> {
+pub(crate) fn widget_topbar(_app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
     let menu: gio::Menu = gio::Menu::new();
     let menu_connection: gio::Menu = gio::Menu::new();
     let menu_settings: gio::Menu = gio::Menu::new();
@@ -39,7 +36,7 @@ pub(crate) fn widget_topbar(
     );
 
     menu_info_versions.append(Some(&crate::utils::version()), Some("void"));
-    menu_info_versions.append(Some(&grrsmp_core::version()), Some("void"));
+    menu_info_versions.append(Some(&sremp_core::version()), Some("void"));
     menu_info_versions.append(
         Some(&format!(
             "This is free software\nlicensed under {}",

@@ -1,27 +1,25 @@
 <div align="center">
 
-# 🦀 `GRRSMP`
+# 🦀 `SREMP`
 
-**Great Routed Rust Secure Messaging Protocol**
-
-_Relay Enhanced, secure, direct, messaging_
+**Secure Relay-Enhanced Messaging Platform**
 
 [![Rust](https://img.shields.io/badge/language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Rust CI](https://github.com/PlexSheep/grrsmp/actions/workflows/cargo.yaml/badge.svg)](https://github.com/PlexSheep/grrsmp/actions/workflows/cargo.yaml)
+[![Rust CI](https://github.com/PlexSheep/sremp/actions/workflows/cargo.yaml/badge.svg)](https://github.com/PlexSheep/sremp/actions/workflows/cargo.yaml)
 
-| Component                                                          | API-Documentation                                     | Description                                | Version                                                         |
-| ------------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------- |
-| [📦 **`core`** ](https://crates.io/crates/grrsmp-core)             | [📖 Documentation](https://docs.rs/grrsmp-core)       | backend, networking and cryptography       | ![Crates.io](https://img.shields.io/crates/v/grrsmp-core)       |
-| [📦 **`gtk`**](https://crates.io/crates/grrsmp-gtk)                | [📖 Documentation](https://docs.rs/grrsmp-gtk)        | GTK4-based desktop client                  | ![Crates.io](https://img.shields.io/crates/v/grrsmp-gtk)        |
-| [📦 **`relay`** ](https://crates.io/crates/grrsmp-relay)           | [📖 Documentation](https://docs.rs/grrsmp-relay)      | temporary message storage, message routing | ![Crates.io](https://img.shields.io/crates/v/grrsmp-relay)      |
-| [📦 **`rendezvous`** ](https://crates.io/crates/grrsmp-rendezvous) | [📖 Documentation](https://docs.rs/grrsmp-rendezvous) | Public list of contacts                    | ![Crates.io](https://img.shields.io/crates/v/grrsmp-rendezvous) |
+| Component                                                         | API-Documentation                                    | Description                                | Version                                                        |
+| ----------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
+| [📦 **`core`** ](https://crates.io/crates/sremp-core)             | [📖 Documentation](https://docs.rs/sremp-core)       | backend, networking and cryptography       | ![Crates.io](https://img.shields.io/crates/v/sremp-core)       |
+| [📦 **`gtk`**](https://crates.io/crates/sremp-gtk)                | [📖 Documentation](https://docs.rs/sremp-gtk)        | GTK4-based desktop client                  | ![Crates.io](https://img.shields.io/crates/v/sremp-gtk)        |
+| [📦 **`relay`** ](https://crates.io/crates/sremp-relay)           | [📖 Documentation](https://docs.rs/sremp-relay)      | temporary message storage, message routing | ![Crates.io](https://img.shields.io/crates/v/sremp-relay)      |
+| [📦 **`rendezvous`** ](https://crates.io/crates/sremp-rendezvous) | [📖 Documentation](https://docs.rs/sremp-rendezvous) | Public list of contacts                    | ![Crates.io](https://img.shields.io/crates/v/sremp-rendezvous) |
 
 </div>
 
 ## Introduction
 
-`GRRSMP` is a secure messaging protocol for chats. It tries to be secure and
+`SREMP` is a secure messaging protocol for chats. It tries to be secure and
 decentralized, with modern cryptography.
 
 Your identity is a cryptographic key, and conversations ideally happen in a
@@ -35,7 +33,7 @@ primitives are broken, but that is pretty unlikely).
 
 The key difference from other chat systems is that the
 components of its infrastructure are separated. There are 3 kinds of actors in
-`GRRSMP`:
+`SREMP`:
 
 - **Clients**: These are your frontend. They store your messages for you
   to see, hold your cryptographic identity, and so on. Theoretically, that is
@@ -61,7 +59,7 @@ clients if you can make a direct connection, for maximum paranoia.
 
 **Technology**
 
-I believe that `GRRSMP` may offer a legitimate, albeit niche, advantage over
+I believe that `SREMP` may offer a legitimate, albeit niche, advantage over
 those amazing established protocols: It's distributed in the sense that
 components can be self-hosted by anyone. You can host your own rendezvous
 server (basically holds a contact list of who is online), your own relay server
@@ -73,7 +71,7 @@ don't feel right to me personally, so maybe that's an advantage over them too.
 
 That aside, it all started when I wanted to learn GTK with Rust. I needed some project to
 code a GUI for. I had had the idea to create a basic chat application for a long
-time, just as an exercise or for fun, and so I started working on `grrsmp-gtk`.
+time, just as an exercise or for fun, and so I started working on `sremp-gtk`.
 
 I don't know why, but somehow, I got really involved in the backend. I think it
 started when I discovered the amazing Noise Protocol Framework, then the double
@@ -83,9 +81,8 @@ ratchet algorithm for actual end-to-end encryption beyond the Transport Layer.
 
 To be realistic, you should just use Signal. Signal is so good. Or Matrix, or
 XMPP. But I have started building a little emotional connection to this
-project. It's the first personal project that I _really_ care about (at least at
-the time of writing. God I hope I don't abandon this project in two weeks, that
-would be so corny.). I mean just look at the name. `GRRSMP`? Really?
+project. It's the first personal project that I _really_ care about (At least at
+the time of writing. I hope I don't abandon this project in two weeks.).
 
 I am developing this from a perspective that nobody will ever use this, and
 especially not contribute to it. I will write a specification for myself,
@@ -102,15 +99,15 @@ most.
 
 ## 📖 Specification
 
-I am still working on the first version of the `GRRSMP`
+I am still working on the first version of the `SREMP`
 [specification](./docs/specification.md), but this document goes into the
-technical details of how `GRRSMP` should work in theory.
+technical details of how `SREMP` should work in theory.
 
 ## 🚧 Project Status
 
 **Current Status**: Development (Alpha)
 
-`GRRSMP` is currently in early development. The core protocol and basic P2P messaging
+`SREMP` is currently in early development. The core protocol and basic P2P messaging
 functionality are still being implemented, and the project is not yet ready
 for real use.
 
@@ -134,7 +131,7 @@ sudo apt-get install libgtk-4-dev build-essential pkg-config
 
 ## 📜 License
 
-`GRRSMP` is free software, and will always be free.
+`SREMP` is free software, and will always be free.
 
 This project is licensed under the **GNU Affero General Public License v3.0** (AGPL-3.0).
 

@@ -1,5 +1,5 @@
 [package]
-name = "grrsmp-gtk"
+name = "sremp-gtk"
 version = "0.1.0"
 edition = {workspace = true}
 publish = {workspace = true}
@@ -13,7 +13,7 @@ rust-version = {workspace = true}
 workspace = true
 
 [dependencies]
-grrsmp-core.workspace = true
+sremp-core.workspace = true
 gtk = { version = "0.10", package = "gtk4"}
 chrono.workspace = true
 ed25519-dalek.workspace = true

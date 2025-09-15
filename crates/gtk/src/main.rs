@@ -1,14 +1,14 @@
-use grrsmp_core::state::State;
 use gtk::prelude::*;
 use gtk::{Application, glib};
+use sremp_core::state::State;
 
 use crate::actions::register_actions;
 use crate::gui::start_gui;
-use crate::state::GrrtkState;
+use crate::state::AppState;
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;
-pub(crate) const APP_ID: &str = "de.cscherr.grrrtk";
+pub(crate) const APP_ID: &str = "de.cscherr.sremp";
 
 mod actions;
 mod gui;
@@ -28,7 +28,7 @@ fn main() -> glib::ExitCode {
         let (command_tx, command_rx) = async_channel::bounded(CHANNEL_CAPACITY);
         let (event_tx, event_rx) = async_channel::bounded(CHANNEL_CAPACITY);
 
-        let state = GrrtkState::new_or_load(command_tx, event_rx, rt)
+        let state = AppState::new_or_load(command_tx, event_rx, rt)
             .expect("could not load or create application state")
             .into_ref();
 

@@ -1,7 +1,7 @@
 use gtk::{Application, prelude::*};
 use log::warn;
 
-use crate::{actions::macros::simple_action, state::GrrtkStateRef};
+use crate::{actions::macros::simple_action, state::AppStateRef};
 
 pub(crate) mod chat;
 pub(crate) mod connection;
@@ -56,7 +56,7 @@ pub(crate) mod ids {
     aid!(A_ID_INFO, "info");
 }
 
-pub(crate) fn register_actions(app: &Application, state: GrrtkStateRef) {
+pub(crate) fn register_actions(app: &Application, state: AppStateRef) {
     settings::register_actions(app, state.clone());
     connection::register_actions(app, state.clone());
     chat::register_actions(app, state.clone());

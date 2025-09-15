@@ -1,13 +1,13 @@
 use std::ops::Deref;
 
 use chrono::Utc;
-use grrsmp_core::chat::messages::{Message, MessageText};
-use grrsmp_core::identity::ContactIdentity;
-use grrsmp_core::net::NetworkCommand;
 use gtk::prelude::*;
+use sremp_core::chat::messages::{Message, MessageText};
+use sremp_core::identity::ContactIdentity;
+use sremp_core::net::NetworkCommand;
 
 use crate::gui::label;
-use crate::state::GrrtkStateRef;
+use crate::state::AppStateRef;
 use crate::utils::GUI_SPACING_LARGE;
 use crate::utils::GUI_SPACING_MID;
 use crate::utils::GUI_SPACING_XLARGE;
@@ -22,7 +22,7 @@ impl MessageBubble {
     pub(crate) fn widget(
         &self,
         app: &gtk::Application,
-        state: GrrtkStateRef,
+        state: AppStateRef,
     ) -> impl IsA<gtk::Widget> {
         let w_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
@@ -74,11 +74,7 @@ impl MessageBubble {
             .build()
     }
 
-    fn widget_content(
-        &self,
-        app: &gtk::Application,
-        state: GrrtkStateRef,
-    ) -> impl IsA<gtk::Widget> {
+    fn widget_content(&self, app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
         match &self.inner {
             Message::Text(m) => Self::widget_content_text(app, state, m),
         }
@@ -86,7 +82,7 @@ impl MessageBubble {
 
     fn widget_content_text(
         _app: &gtk::Application,
-        _state: GrrtkStateRef,
+        _state: AppStateRef,
         msg: &MessageText,
     ) -> impl IsA<gtk::Widget> {
         gtk::Label::new(Some(&msg.text))
@@ -109,7 +105,7 @@ impl From<Message> for MessageBubble {
 
 pub(crate) fn widget_viewport_chat(
     app: &gtk::Application,
-    state: GrrtkStateRef,
+    state: AppStateRef,
 ) -> impl IsA<gtk::Widget> {
     let vp_chat = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
@@ -154,7 +150,7 @@ pub(crate) fn widget_viewport_chat(
     vp_chat
 }
 
-fn widget_input_area(app: &gtk::Application, state: GrrtkStateRef) -> impl IsA<gtk::Widget> {
+fn widget_input_area(app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
     let w_frame = gtk::Frame::builder()
         .margin_top(GUI_SPACING_MID)
         .margin_bottom(GUI_SPACING_MID)

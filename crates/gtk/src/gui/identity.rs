@@ -1,6 +1,6 @@
 use gtk::prelude::*;
 
-use grrsmp_core::identity::{ContactIdentity, UserIdentity, format_key};
+use sremp_core::identity::{ContactIdentity, UserIdentity, format_key};
 
 use crate::{gui::label, utils::GUI_SPACING_MID};
 
