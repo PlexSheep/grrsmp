@@ -11,7 +11,7 @@ use gtk::{Application, prelude::*};
 use log::warn;
 use sremp_core::net::NetworkCommand;
 
-pub(crate) fn register_actions(app: &Application, state: AppStateRef) {
+pub(super) fn register_actions(app: &Application, state: AppStateRef) {
     simple_action!(app, state, _app_c, state_c, A_ID_CONNECTION_LISTEN!(), {
         send_command(
             &state_c,

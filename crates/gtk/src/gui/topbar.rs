@@ -7,6 +7,7 @@ pub(crate) fn widget_topbar(_app: &gtk::Application, state: AppStateRef) -> impl
     let menu_connection: gio::Menu = gio::Menu::new();
     let menu_settings: gio::Menu = gio::Menu::new();
     let menu_info: gio::Menu = gio::Menu::new();
+    let menu_identity: gio::Menu = gio::Menu::new();
     let menu_info_versions: gio::Menu = gio::Menu::new();
 
     menu_connection.append(
@@ -48,7 +49,17 @@ pub(crate) fn widget_topbar(_app: &gtk::Application, state: AppStateRef) -> impl
     menu_info.append(Some("Show About"), Some(actions::ids::A_ID_INFO!(app)));
     menu_info.append_section(Some("versions"), &menu_info_versions);
 
+    menu_identity.append(
+        Some("Create new Identity"),
+        Some(actions::ids::A_ID_IDENTITY_CREATE!(app)),
+    );
+    menu_identity.append(
+        Some("Show my Identity"),
+        Some(actions::ids::A_ID_IDENTITY_SHOW_USER!(app)), // TODO: open a show window on clicked
+    );
+
     menu.append_submenu(Some("Connection"), &menu_connection);
+    menu.append_submenu(Some("Identity"), &menu_identity);
     menu.append_submenu(Some("Settings"), &menu_settings);
     menu.append_submenu(Some("Info"), &menu_info);
 

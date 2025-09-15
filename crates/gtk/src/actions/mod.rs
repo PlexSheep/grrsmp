@@ -3,9 +3,10 @@ use log::warn;
 
 use crate::{actions::macros::simple_action, state::AppStateRef};
 
-pub(crate) mod chat;
-pub(crate) mod connection;
-pub(crate) mod settings;
+mod chat;
+mod connection;
+mod identity;
+mod settings;
 
 pub(crate) mod macros {
 
@@ -54,12 +55,17 @@ pub(crate) mod ids {
     aid!(A_ID_CONNECTION_DISCONNECT, "connection.disconnect");
 
     aid!(A_ID_INFO, "info");
+
+    aid!(A_ID_IDENTITY_CREATE, "identity.create");
+    aid!(A_ID_IDENTITY_SHOW_USER, "identity.show_user");
+    aid!(A_ID_IDENTITY_SHOW_CONTACT, "identity.show_user");
 }
 
-pub(crate) fn register_actions(app: &Application, state: AppStateRef) {
+pub(super) fn register_actions(app: &Application, state: AppStateRef) {
     settings::register_actions(app, state.clone());
     connection::register_actions(app, state.clone());
     chat::register_actions(app, state.clone());
+    identity::register_actions(app, state.clone());
 
     simple_action!(app, ids::A_ID_INFO!(), {
         warn!("Info window is not yet implemented")
