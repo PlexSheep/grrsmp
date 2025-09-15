@@ -159,5 +159,9 @@ fn generate_good_key() -> SigningKey {
 }
 
 pub fn format_key(key: &VerifyingKey) -> String {
-    format!("{:?}", key.as_bytes())
+    let mut buf = String::new();
+    for b in key.as_bytes() {
+        buf.push_str(&format!("{b:02X}"));
+    }
+    buf
 }
