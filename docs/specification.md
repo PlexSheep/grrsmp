@@ -76,24 +76,26 @@ Each SREMP participant possesses a cryptographic identity consisting of an Ed255
 Identity := {
     username: UTF-8String,
     public_key: Ed25519PublicKey,
-    flags: IdentityFlags,
-    extensions: Optional<IdentityExtensions>
+    flags: Flags,
+    extensions: Optional<Extensions>
 }
 
-IdentityFlags := {
+Flags := {
     uses_relay: Boolean,
     is_machine_account: Boolean,
     is_relay_server: Boolean,
     prefers_async: Boolean
 }
 
-IdentityExtensions := {
+Extensions := {
     profile_picture: Optional<Vec<u8>>,
     additional_metadata: Optional<Map<String, Vec<u8>>>
 }
 ```
 
 The public key serves as the canonical identifier for routing purposes and cannot be changed without creating an entirely new identity. The username provides human-readable identification, and the version field enables future identity format evolution. Extensions allow future platform versions to include additional metadata such as profile pictures.
+
+A Username should be a UTF-8 String with 1 to 40 characters.
 
 ### 3.2 Trust Model
 
