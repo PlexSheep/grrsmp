@@ -13,12 +13,16 @@ SREMP provides a messaging platform where users maintain control over their infr
 
 ### 1.1 Terminology
 
-This document uses ABNF notation (RFC 5234) for data structure definitions. Platform messages are defined using a simplified notation where:
+This document uses a mix of ABNF-like (RFC 5234) notation and Rust-like Pseudocode for structured definitions. Platform messages are defined using a simplified notation where:
 
 - `Name := { field: type, field: type }` defines structured data
 - `Name := VALUE1 | VALUE2` defines enumerated types
 - `Vec<Type>` represents arrays of the specified type
 - `Optional<Type>` represents nullable fields
+- `DateTime<TZ>` represents a time and date in the time zone `TZ`
+
+This structure is not clearly defined, but easier to read and understand
+than strict ABNF.
 
 ### 1.2 Design Principles
 
@@ -91,6 +95,27 @@ Extensions := {
     profile_picture: Optional<Vec<u8>>,
     additional_metadata: Optional<Map<String, Vec<u8>>>
 }
+
+UserIdentity := {
+    identity: Identity,
+    private_key: Ed25519PrivateKey,
+    created: DateTime<Utc>
+}
+
+ContactIdentity {
+    identity: Identity,
+    trust: Trust,
+    first_seen: DateTime<Utc>,
+    last_seen: DateTime<Utc>
+}
+
+Trust {
+
+}
+
+Trust := Unknown | Trusted | Rejected
+
+Username := UTF-8String (1-40 characters)
 ```
 
 The public key serves as the canonical identifier for routing purposes and cannot be changed without creating an entirely new identity. The username provides human-readable identification, and the version field enables future identity format evolution. Extensions allow future platform versions to include additional metadata such as profile pictures.
@@ -101,7 +126,12 @@ A Username should be a UTF-8 String with 1 to 40 characters.
 
 SREMP employs Trust-on-First-Use (TOFU) authentication similar to SSH. Clients cache identity mappings on first contact and treat each Ed25519 public key as representing a permanent identity. Users who wish to change their cryptographic keys must create an entirely new identity and re-establish trust relationships.
 
-This immutable identity model simplifies the trust platform by eliminating key rotation complexity while requiring users to carefully protect their private keys.
+Trust states represent the user's assessment of a contact's authenticity:
+
+- **Unknown**: Default state for new contacts using TOFU
+- **Trusted**: Manually verified through out-of-band channels (or just
+  accepted as good enough)
+- **Rejected**: Manually marked as untrusted or potentially malicious
 
 **Security Consideration**: TOFU provides limited protection against sophisticated man-in-the-middle attacks during initial key exchange. Users requiring stronger authentication must verify identity keys through out-of-band channels.
 
