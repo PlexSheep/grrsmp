@@ -1,7 +1,7 @@
 # SREMP Specification
 
-**Version 0.1-draft**  
-**Status: In Development**
+- **Version 0.1-draft**
+- **Status: In Development**
 
 ## Abstract
 
@@ -77,7 +77,6 @@ Identity := {
     username: UTF-8String,
     public_key: Ed25519PublicKey,
     flags: IdentityFlags,
-    version: u8,
     extensions: Optional<IdentityExtensions>
 }
 
@@ -85,7 +84,6 @@ IdentityFlags := {
     uses_relay: Boolean,
     is_machine_account: Boolean,
     is_relay_server: Boolean,
-    multi_device: Boolean,
     prefers_async: Boolean
 }
 
