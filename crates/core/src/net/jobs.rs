@@ -33,6 +33,9 @@ impl State {
         event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
         if state.read().await.listener.is_some() {
+            // FIXME: KILLER DEADLOCK!
+            // The listener is borrowed via a mutuable lock on the core state. This means no other
+            // thread can use the core state at all.
             let mut state_b = state.write().await;
             let listener = state_b.listener.as_mut().unwrap();
             let (stream, remote) = match listener.accept().await {
@@ -42,6 +45,7 @@ impl State {
                     return Ok(());
                 }
             };
+            drop(state_b);
             let state_c = state.clone();
             let evt_c = event_channel.clone();
             let cmd_c = command_channel.clone();
