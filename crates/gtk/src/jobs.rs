@@ -45,7 +45,7 @@ async fn event_processor(state: AppStateRef) {
     }
 }
 
-fn update_listener_label(state: &std::cll::Ref<'_, crate::state::AppState>) {
+fn update_listener_label(state: &std::cell::Ref<'_, crate::state::AppState>) {
     trace!("updating listener label");
     let new_text = state.fmt_listen_status();
     state
