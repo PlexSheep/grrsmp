@@ -12,7 +12,7 @@ mod frame;
 use frame::*;
 
 pub static NOISE_PARAMS: LazyLock<NoiseParams> = LazyLock::new(|| {
-    "Noise_XX_25519_ChaChaPoly_Blake2s"
+    "Noise_XX_25519_ChaChaPoly_BLAKE2s"
         .parse()
         .expect("noise parameter string is malformed")
 });
@@ -204,6 +204,7 @@ impl P2PConnection {
         match f(stream).await {
             Ok(t) => Ok(t),
             Err(e) => {
+                log::warn!("Error while handling a Connection, cutting the TcpStream: {e}");
                 stream
                     .shutdown()
                     .await

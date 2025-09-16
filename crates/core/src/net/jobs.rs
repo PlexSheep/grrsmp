@@ -20,6 +20,7 @@ impl State {
         event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
         let cmd = command_channel.recv().await?;
+        log::info!("Got a NetworkCommand: {cmd}");
         let event = state.write().await.process_network_command(cmd).await?;
         event_channel.send(event).await?;
         Ok(())
@@ -124,7 +125,8 @@ impl State {
         let user_identity = self
             .user_identity
             .as_ref()
-            .ok_or(CoreError::NoUserIdentity)?;
+            .ok_or(CoreError::NoUserIdentity)
+            .inspect_err(|e| log::error!("Can't connect without identity: {e}"))?;
         let connection = Connection::connect_to(remote, user_identity).await?;
         self.init_connection(remote, connection).await
     }
@@ -137,7 +139,8 @@ impl State {
         let user_identity = self
             .user_identity
             .as_ref()
-            .ok_or(CoreError::NoUserIdentity)?;
+            .ok_or(CoreError::NoUserIdentity)
+            .inspect_err(|e| log::error!("Can't connect without identity: {e}"))?;
         let connection = Connection::connect_from(stream, remote, user_identity).await?;
         self.init_connection(remote, connection).await
     }

@@ -227,6 +227,7 @@ fn widget_input_area(app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk
     w_btn_send.connect_clicked(move |_| {
         let text = tb.text(&tb.start_iter(), &tb.end_iter(), false);
         if !text.trim().is_empty() {
+            // FIXME: i need to program actual chats
             let chat = state
                 .borrow()
                 .selected_chat()
