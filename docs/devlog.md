@@ -28,6 +28,9 @@ day as part of the previous one. It's just more convenient that way.
 - I also added a timeout to the tcp listener job, so that there are points in
   time where no one holds a reference, so that getting a mutable reference (lock)
   is possible (which is needed by the identity creation gui). #9
+- I now got the first partial noise handshake! We start a listener, create an identity,
+  then connect to our own listener. Sadly, the listener does not actually reply
+  with noise protocol messages for the handshake yet for some reason.
 
 ### Notes
 
