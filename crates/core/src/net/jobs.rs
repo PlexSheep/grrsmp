@@ -33,12 +33,13 @@ impl State {
         command_channel: &mut Receiver<NetworkCommand>,
         event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
+        log::trace!("start of network listener job");
         if state.read().await.listener.is_some() {
-            // FIXME: KILLER DEADLOCK!
-            // The listener is borrowed via a mutuable lock on the core state. This means no other
-            // thread can use the core state at all.
+            log::trace!("trying to get the state");
             let state_b = state.read().await;
+            log::trace!("got the sate");
             let listener = state_b.listener.as_ref().unwrap();
+            log::trace!("Checking for incoming network connections");
             let (stream, remote) = tokio::select! {
                 result = listener.accept() => {
                     match result {
@@ -49,14 +50,17 @@ impl State {
                         }
                     }
                 }
-                _ = tokio::time::sleep(tokio::time::Duration::from_millis(5)) => {
+                _ = tokio::time::sleep(tokio::time::Duration::from_millis(20)) => {
+                    log::trace!("Trying to accept a remote connection timed out");
                     return Ok(()); // timeout, try again
                 }
             };
+            log::trace!("accepted a remote connection from {remote}");
             drop(state_b);
             let state_c = state.clone();
             let evt_c = event_channel.clone();
             let cmd_c = command_channel.clone();
+            log::debug!("spawning handler for incoming connection from {remote}");
             tokio::spawn(async move {
                 if let Err(e) =
                     Self::handle_incoming_connection(state_c, stream, remote, evt_c, cmd_c).await
@@ -65,6 +69,9 @@ impl State {
                 }
             });
         } else {
+            log::trace!(
+                "network listener job cant get a reference to the core state or the listener does not exist"
+            );
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await
         }
 
@@ -165,6 +172,7 @@ impl State {
         event_channel: Sender<NetworkEvent>,
         _command_channel: Receiver<NetworkCommand>,
     ) -> CoreResult<()> {
+        log::info!("Handling incoming connection from {remote}");
         let event = state.write().await.connect_from(stream, remote).await?;
         event_channel.send(event).await?;
 

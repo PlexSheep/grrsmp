@@ -31,6 +31,7 @@ day as part of the previous one. It's just more convenient that way.
 - I now got the first partial noise handshake! We start a listener, create an identity,
   then connect to our own listener. Sadly, the listener does not actually reply
   with noise protocol messages for the handshake yet for some reason.
+- Ah amazing, it's another deadlock...
 
 ### Notes
 
