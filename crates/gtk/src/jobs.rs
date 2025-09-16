@@ -17,16 +17,15 @@ pub(super) fn start_jobs(state: AppStateRef) {
 async fn event_processor(state: AppStateRef) {
     loop {
         {
-            let state_bind: std::cell::Ref<'_, crate::state::AppState> = state.borrow();
-            if let Ok(event) = state_bind.event_channel.try_recv() {
+            if let Ok(event) = state.borrow().event_channel.try_recv() {
                 log::info!("Processing network event: {event}");
 
                 match event {
                     NetworkEvent::ListenerStarted(_addr) => {
-                        update_listener_label(&state_bind);
+                        update_listener_label(&state.borrow());
                     }
                     NetworkEvent::ListenerStopped => {
-                        update_listener_label(&state_bind);
+                        update_listener_label(&state.borrow());
                     }
                     NetworkEvent::ConnectionEstablished(_addr, _key) => {
                         // Add new chat, update chat list, etc.
@@ -46,7 +45,7 @@ async fn event_processor(state: AppStateRef) {
     }
 }
 
-fn update_listener_label(state: &std::cell::Ref<'_, crate::state::AppState>) {
+fn update_listener_label(state: &std::cll::Ref<'_, crate::state::AppState>) {
     trace!("updating listener label");
     let new_text = state.fmt_listen_status();
     state

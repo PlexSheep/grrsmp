@@ -34,7 +34,7 @@ pub(crate) fn widget_chats_list(
                 .build(),
         );
     } else {
-        for chat in state.borrow().core().chats.values() {
+        for chat in state.borrow().core().chats.clone().values() {
             let w_chat_card = widget_chat_card(app, state.clone(), chat);
             w_list.append(&w_chat_card);
         }
