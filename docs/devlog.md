@@ -14,6 +14,40 @@ project.
 Also, since I'm a night person, I will count sessions continuing into the next
 day as part of the previous one. It's just more convenient that way.
 
+## 2025-09-16 (plexsheep)
+
+### Progress
+
+- Specified the rust like notation
+- The deadlock comes from the tcp listener in the job for it. The job gets
+  a mutable reference to the tcp listener by locking the core state,
+  meaning no other thread can use the core state. The bad news is that we need
+  a mutuable ref to that thing...
+- WAIT `tokio::net::TcpListener::accept` does _not_ need a mutuable reference!
+  I can just use regular ones and it should work!
+- I also added a timeout to the tcp listener job, so that there are points in
+  time where no one holds a reference, so that getting a mutable reference (lock)
+  is possible (which is needed by the identity creation gui). #9
+
+### Notes
+
+- I need to do something about those deadlocks. The application starts hanging
+  when some actions are combined, forever
+- I already inline pretty much all lock actions, never hold across await
+  (i deny that clippy warning actually), but still.
+- Having Synchronous GUI code might be part of the issue. Does the whole tokio
+  runtime block when i use block_on to get a lock?
+- While I was able to fix my immediate deadlock problem, the architecture is
+  suboptimal and will lead to more deadlocks. I should improve the state system in
+  a way that makes deadlocks impossible or at least much less likely. I should
+  also be sure to remember to add timeouts and be critical of await when i have
+  a lock.
+
+### Mood
+
+Annoyed and frustrated at those damn deadlocks that I probably wouldn't have if
+I could have multiple mutable references.
+
 ## 2025-09-15 (plexsheep)
 
 ### Progress
