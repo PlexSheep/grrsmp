@@ -21,8 +21,7 @@ This document uses a mix of ABNF-like (RFC 5234) notation and Rust-like Pseudoco
 - `Optional<Type>` represents nullable fields
 - `DateTime<TZ>` represents a time and date in the time zone `TZ`
 
-This structure is not clearly defined, but easier to read and understand
-than strict ABNF.
+We define this structure in the [Notation specification](./notation.md).
 
 ### 1.2 Design Principles
 
@@ -90,7 +89,7 @@ Each SREMP participant possesses a cryptographic identity consisting of an Ed255
 
 ```
 Identity := {
-    username: UTF-8String,
+    username: String
     public_key: Ed25519PublicKey,
     flags: Flags,
     extensions: Optional<Extensions>
@@ -123,7 +122,7 @@ ContactIdentity {
 
 Trust := Unknown | Trusted | Rejected
 
-Username := UTF-8String (1-40 characters)
+Username := String(1..=40)
 ```
 
 The public key serves as the canonical identifier for routing purposes and cannot be changed without creating an entirely new identity. The username provides human-readable identification, and the version field enables future identity format evolution. Extensions allow future platform versions to include additional metadata such as profile pictures.
@@ -438,6 +437,17 @@ This specification describes SREMP but acknowledges several areas requiring futu
 ## 13. Acknowledgments
 
 This platform draws inspiration from the Signal Protocol, the Noise Protocol Framework, and various decentralized communication systems. The specification reflects ongoing design discussions and implementation experience.
+
+# Appendix
+
+## A Constants
+
+- `DHLEN := 32`: Diffie-Hellman output length (32 bytes for Ed25519)
+- `MAX_FRAME_SIZE := 65535`: Maximum transport frame size (65535 bytes)
+
+`MAX_FRAME_SIZE` may become smaller. It is not yet determined if the Noise
+Protocol Framework provides a smaller window, or how large the headers for our
+protocols are.
 
 ---
 
