@@ -36,13 +36,20 @@ impl State {
             // FIXME: KILLER DEADLOCK!
             // The listener is borrowed via a mutuable lock on the core state. This means no other
             // thread can use the core state at all.
-            let mut state_b = state.write().await;
-            let listener = state_b.listener.as_mut().unwrap();
-            let (stream, remote) = match listener.accept().await {
-                Ok(s) => s,
-                Err(e) => {
-                    warn!("Could not accept connection attempt to listener: {e}");
-                    return Ok(());
+            let state_b = state.read().await;
+            let listener = state_b.listener.as_ref().unwrap();
+            let (stream, remote) = tokio::select! {
+                result = listener.accept() => {
+                    match result {
+                        Ok(s) => s,
+                        Err(e) => {
+                            warn!("Could not accept connection attempt to listener: {e}");
+                            return Ok(());
+                        }
+                    }
+                }
+                _ = tokio::time::sleep(tokio::time::Duration::from_millis(5)) => {
+                    return Ok(()); // timeout, try again
                 }
             };
             drop(state_b);
