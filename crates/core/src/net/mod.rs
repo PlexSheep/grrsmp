@@ -14,6 +14,8 @@ use crate::{
 pub mod connection;
 mod jobs;
 
+const JOB_ITERATION_INTERVAL_MS: u64 = 30;
+
 #[derive(Debug, Clone)]
 #[allow(clippy::large_enum_variant)]
 pub enum NetworkCommand {
@@ -48,7 +50,10 @@ macro_rules! start_backend_job {
                 $job(&rc_state_copy, &mut cmd_c, &mut evt_c)
                     .await
                     .expect($fail_msg);
-                tokio::time::sleep(tokio::time::Duration::from_millis(30)).await
+                tokio::time::sleep(tokio::time::Duration::from_millis(
+                    JOB_ITERATION_INTERVAL_MS,
+                ))
+                .await
             }
         });
     };
