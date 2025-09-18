@@ -127,7 +127,7 @@ pub(crate) fn widget_viewport_chat(
         .known_identities
         .insert(dbg_contact.identity.public_key, dbg_contact.clone());
     for number in (0..=100).rev() {
-        let msg = Message::new_text(
+        let msg = Message::new(
             format!("foo bar {number} years ago"),
             chrono::Utc::now(),
             dbg_contact.identity.public_key,
@@ -232,7 +232,7 @@ fn widget_input_area(app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk
                 .borrow()
                 .selected_chat()
                 .expect("no chat is selected?");
-            let msg = Message::new_text(text, Utc::now(), chat.contact().identity.public_key);
+            let msg = Message::new(text, Utc::now(), chat.contact().identity.public_key);
             state
                 .borrow()
                 .command_channel
