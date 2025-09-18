@@ -1,6 +1,6 @@
 use super::ids::*;
 use super::macros::simple_action;
-use crate::state::UiDomainSync;
+use crate::domain::UiDomainSync;
 
 use gtk::{Application, prelude::*};
 

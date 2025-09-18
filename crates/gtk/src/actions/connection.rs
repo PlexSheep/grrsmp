@@ -5,7 +5,7 @@ use std::{
 
 use super::ids::*;
 use super::macros::simple_action;
-use crate::{gui::connect::dialog_connect, state::UiDomainSync};
+use crate::{domain::UiDomainSync, gui::connect::dialog_connect};
 
 use gtk::{Application, prelude::*};
 use log::warn;

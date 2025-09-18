@@ -1,4 +1,4 @@
-use crate::{gui::label, state::UiDomainSync, utils::GUI_SPACING_MID};
+use crate::{domain::UiDomainSync, gui::label, utils::GUI_SPACING_MID};
 
 use gtk::prelude::*;
 use sremp_core::net::NetworkCommand;

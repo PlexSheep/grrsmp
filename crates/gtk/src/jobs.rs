@@ -6,7 +6,7 @@
 use log::trace;
 use sremp_core::net::NetworkEvent;
 
-use crate::state::UiDomainSync;
+use crate::domain::UiDomainSync;
 
 use gtk::glib;
 
@@ -45,7 +45,7 @@ async fn event_processor(state: UiDomainSync) {
     }
 }
 
-fn update_listener_label(state: &std::cell::Ref<'_, crate::state::UiDomain>) {
+fn update_listener_label(state: &std::cell::Ref<'_, crate::domain::UiDomain>) {
     trace!("updating listener label");
     let new_text = state.fmt_listen_status();
     state

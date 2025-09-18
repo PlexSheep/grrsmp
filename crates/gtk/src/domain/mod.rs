@@ -15,12 +15,10 @@ use tracked_widgets::TrackedWidgets;
 
 #[derive(Debug)]
 pub(crate) struct UiDomain {
-    pub(crate) core: NetworkDomainSync,
     pub(crate) command_channel: Sender<NetworkCommand>,
     pub(crate) event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
-    pub(crate) rt: tokio::runtime::Runtime,
     pub(crate) tracked_widgets: TrackedWidgets,
-    selected_chat: Option<VerifyingKey>,
+    pub(crate) selected_chat: Option<VerifyingKey>,
 }
 
 #[derive(Debug, Clone)]
@@ -33,13 +31,10 @@ impl UiDomain {
     pub(crate) fn new(
         command_channel: Sender<NetworkCommand>,
         event_channel: Receiver<NetworkEvent>,
-        rt: tokio::runtime::Runtime,
     ) -> Self {
         Self {
-            core: NetworkDomain::default().to_sync(),
             command_channel,
             event_channel,
-            rt,
             selected_chat: None,
             tracked_widgets: Default::default(),
         }

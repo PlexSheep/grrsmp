@@ -3,17 +3,17 @@ use gtk::{Application, glib};
 use sremp_core::state::State;
 
 use crate::actions::register_actions;
+use crate::domain::UiDomain;
 use crate::gui::start_gui;
-use crate::state::UiDomain;
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;
 pub(crate) const APP_ID: &str = "de.cscherr.sremp";
 
 mod actions;
+mod domain;
 mod gui;
 mod jobs;
-mod state;
 mod utils;
 
 fn main() -> glib::ExitCode {

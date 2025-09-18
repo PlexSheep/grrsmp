@@ -1,7 +1,7 @@
 use gtk::prelude::*;
 use sremp_core::identity::{ContactIdentity, UserIdentity, format_key};
 
-use crate::{gui::label, state::UiDomainSync, utils::GUI_SPACING_MID};
+use crate::{domain::UiDomainSync, gui::label, utils::GUI_SPACING_MID};
 
 /// Creates and shows a dialog for creating a new user identity
 pub(crate) fn dialog_create_identity(app: &gtk::Application, state: UiDomainSync) {

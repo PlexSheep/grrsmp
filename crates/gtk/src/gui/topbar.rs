@@ -1,6 +1,6 @@
 use gtk::{gio, prelude::*};
 
-use crate::{actions, gui::label, state::UiDomainSync};
+use crate::{actions, domain::UiDomainSync, gui::label};
 
 pub(crate) fn widget_topbar(_app: &gtk::Application, state: UiDomainSync) -> impl IsA<gtk::Widget> {
     let menu: gio::Menu = gio::Menu::new();

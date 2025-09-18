@@ -1,8 +1,8 @@
 use gtk::prelude::*;
 use sremp_core::chat::Chat;
 
+use crate::domain::UiDomainSync;
 use crate::gui::label;
-use crate::state::UiDomainSync;
 use crate::utils::{GUI_SPACING_LARGE, GUI_SPACING_MID};
 
 pub(crate) fn widget_chats_list(

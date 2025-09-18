@@ -1,4 +1,4 @@
-use crate::state::UiDomainSync;
+use crate::domain::UiDomainSync;
 
 use gtk::Application;
 

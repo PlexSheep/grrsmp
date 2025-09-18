@@ -1,6 +1,6 @@
 use super::ids::*;
 use super::macros::simple_action;
-use crate::{gui::identity::dialog_create_identity, state::UiDomainSync};
+use crate::{domain::UiDomainSync, gui::identity::dialog_create_identity};
 
 use gtk::{Application, prelude::*};
 

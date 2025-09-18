@@ -6,8 +6,8 @@ use sremp_core::chat::messages::{Message, SharedMessage};
 use sremp_core::identity::ContactIdentity;
 use sremp_core::net::NetworkCommand;
 
+use crate::domain::UiDomainSync;
 use crate::gui::label;
-use crate::state::UiDomainSync;
 use crate::utils::GUI_SPACING_LARGE;
 use crate::utils::GUI_SPACING_MID;
 use crate::utils::GUI_SPACING_XLARGE;

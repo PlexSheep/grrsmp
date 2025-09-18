@@ -1,7 +1,7 @@
 use gtk::{Application, prelude::*};
 use log::warn;
 
-use crate::{actions::macros::simple_action, state::UiDomainSync};
+use crate::{actions::macros::simple_action, domain::UiDomainSync};
 
 mod chat;
 mod connection;
