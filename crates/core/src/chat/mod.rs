@@ -1,6 +1,10 @@
 use std::net::SocketAddr;
 
-use crate::{chat::messages::Message, identity::ContactIdentity, state::State};
+use crate::{
+    chat::messages::{Message, SharedMessage},
+    identity::ContactIdentity,
+    state::State,
+};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -9,7 +13,7 @@ pub mod messages;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Chat {
-    messages: Vec<Message>,
+    messages: Vec<SharedMessage>,
     contact: ContactIdentity,
 }
 
@@ -25,7 +29,7 @@ impl Chat {
         Some(self.messages.last()?.meta().time_received)
     }
 
-    pub fn messages(&self) -> &[Message] {
+    pub fn messages(&self) -> &[SharedMessage] {
         &self.messages
     }
 
@@ -34,7 +38,7 @@ impl Chat {
     }
 
     pub fn add_message(&mut self, msg: Message) {
-        self.messages.push(msg);
+        self.messages.push(msg.into());
         self.sort();
     }
 

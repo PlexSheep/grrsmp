@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use chrono::Utc;
 use gtk::prelude::*;
-use sremp_core::chat::messages::{Message, MessageText};
+use sremp_core::chat::messages::{Message, SharedMessage};
 use sremp_core::identity::ContactIdentity;
 use sremp_core::net::NetworkCommand;
 
@@ -15,7 +15,7 @@ use crate::utils::GUI_SPACING_XXXLARGE;
 
 #[derive(Debug, Clone)]
 pub(crate) struct MessageBubble {
-    inner: Message,
+    inner: SharedMessage,
 }
 
 impl MessageBubble {
@@ -77,30 +77,20 @@ impl MessageBubble {
     }
 
     fn widget_content(&self, app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
-        match &self.inner {
-            Message::Text(m) => Self::widget_content_text(app, state, m),
-        }
-    }
-
-    fn widget_content_text(
-        _app: &gtk::Application,
-        _state: AppStateRef,
-        msg: &MessageText,
-    ) -> impl IsA<gtk::Widget> {
-        gtk::Label::new(Some(&msg.text))
+        gtk::Label::new(Some(&self.inner.text))
     }
 }
 
 impl Deref for MessageBubble {
-    type Target = Message;
+    type Target = SharedMessage;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl From<Message> for MessageBubble {
-    fn from(value: Message) -> Self {
+impl From<SharedMessage> for MessageBubble {
+    fn from(value: SharedMessage) -> Self {
         MessageBubble { inner: value }
     }
 }
@@ -127,11 +117,12 @@ pub(crate) fn widget_viewport_chat(
         .known_identities
         .insert(dbg_contact.identity.public_key, dbg_contact.clone());
     for number in (0..=100).rev() {
-        let msg = Message::new(
+        let msg: SharedMessage = Message::new(
             format!("foo bar {number} years ago"),
             chrono::Utc::now(),
             dbg_contact.identity.public_key,
-        );
+        )
+        .into();
         let bubble: MessageBubble = msg.into();
         w_list_box.append(&bubble.widget(app, state.clone()));
     }

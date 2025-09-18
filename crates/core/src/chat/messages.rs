@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::{fmt::Display, sync::Arc};
 
 // WARN: we use a standard mutex in this module, even though we are using it
@@ -9,7 +10,11 @@ use chrono::{DateTime, Utc};
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-pub type SharedMessage = Arc<Message>;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SharedMessage {
+    #[serde(serialize_with = "ser_arc", deserialize_with = "deser_arc")]
+    inner: Arc<Message>,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Message {
@@ -97,6 +102,31 @@ impl MessageMeta {
             author_key,
         }
     }
+}
+
+impl Deref for SharedMessage {
+    type Target = Message;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.inner
+    }
+}
+
+impl From<Message> for SharedMessage {
+    fn from(value: Message) -> Self {
+        SharedMessage {
+            inner: Arc::new(value),
+        }
+    }
+}
+
+pub fn ser_arc<T: Serialize, S: Serializer>(t: &Arc<T>, s: S) -> Result<S::Ok, S::Error> {
+    (*t).serialize(s)
+}
+
+pub fn deser_arc<'de, D: Deserializer<'de>, T: Deserialize<'de>>(d: D) -> Result<Arc<T>, D::Error> {
+    let t = T::deserialize(d)?;
+    Ok(Arc::new(t))
 }
 
 pub fn ser_arcmut<T: Serialize, S: Serializer>(t: &Arc<Mutex<T>>, s: S) -> Result<S::Ok, S::Error> {
