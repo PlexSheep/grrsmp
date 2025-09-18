@@ -1511,6 +1511,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "sremp-client"
+version = "0.1.0"
+dependencies = [
+ "async-channel",
+ "log",
+ "rmp-serde",
+ "serde",
+ "tokio",
+]
+
+[[package]]
 name = "sremp-core"
 version = "0.1.0"
 dependencies = [

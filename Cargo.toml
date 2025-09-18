@@ -32,4 +32,5 @@ resolver = "3"
 members = [
     "crates/core",
     "crates/gtk",
+    "crates/client",
 ]
