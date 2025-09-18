@@ -8,14 +8,14 @@ use tokio::{
 };
 
 use crate::{
+    domain::{ConnectionData, NetworkDomain, NetworkDomainSync},
     error::{CoreError, CoreResult},
     net::{NetworkCommand, NetworkEvent, connection::Connection},
-    state::{ConnectionData, State, StateSync},
 };
 
-impl State {
+impl NetworkDomain {
     pub(crate) async fn job_network_command_processing(
-        state: &StateSync,
+        state: &NetworkDomainSync,
         command_channel: &mut Receiver<NetworkCommand>,
         event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
@@ -29,7 +29,7 @@ impl State {
     // TODO: monitor connection or something? or create a job for each connection anyways?
 
     pub(crate) async fn job_network_listener(
-        state: &StateSync,
+        state: &NetworkDomainSync,
         command_channel: &mut Receiver<NetworkCommand>,
         event_channel: &mut Sender<NetworkEvent>,
     ) -> CoreResult<()> {
@@ -166,7 +166,7 @@ impl State {
     }
 
     async fn handle_incoming_connection(
-        state: StateSync,
+        state: NetworkDomainSync,
         stream: net::TcpStream,
         remote: SocketAddr,
         event_channel: Sender<NetworkEvent>,

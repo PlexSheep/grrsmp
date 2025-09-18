@@ -6,15 +6,15 @@
 use log::trace;
 use sremp_core::net::NetworkEvent;
 
-use crate::state::AppStateRef;
+use crate::state::UiDomainSync;
 
 use gtk::glib;
 
-pub(super) fn start_jobs(state: AppStateRef) {
+pub(super) fn start_jobs(state: UiDomainSync) {
     glib::spawn_future_local(event_processor(state));
 }
 
-async fn event_processor(state: AppStateRef) {
+async fn event_processor(state: UiDomainSync) {
     loop {
         {
             if let Ok(event) = state.borrow().event_channel.try_recv() {
@@ -45,7 +45,7 @@ async fn event_processor(state: AppStateRef) {
     }
 }
 
-fn update_listener_label(state: &std::cell::Ref<'_, crate::state::AppState>) {
+fn update_listener_label(state: &std::cell::Ref<'_, crate::state::UiDomain>) {
     trace!("updating listener label");
     let new_text = state.fmt_listen_status();
     state

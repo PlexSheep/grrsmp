@@ -2,8 +2,8 @@ use std::net::SocketAddr;
 
 use crate::{
     chat::messages::{Message, SharedMessage},
+    domain::NetworkDomain,
     identity::ContactIdentity,
-    state::State,
 };
 
 use chrono::{DateTime, Utc};
@@ -47,7 +47,7 @@ impl Chat {
     }
 }
 
-impl State {
+impl NetworkDomain {
     pub fn find_socket_addr_for_chat(&self, chat: &Chat) -> Option<SocketAddr> {
         self.active_connections
             .find_socket_addr_for_contact(&chat.contact.identity.public_key)

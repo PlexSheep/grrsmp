@@ -1515,9 +1515,11 @@ name = "sremp-client"
 version = "0.1.0"
 dependencies = [
  "async-channel",
+ "ed25519-dalek",
  "log",
  "rmp-serde",
  "serde",
+ "sremp-core",
  "tokio",
 ]
 

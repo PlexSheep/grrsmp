@@ -7,7 +7,7 @@ use sremp_core::identity::ContactIdentity;
 use sremp_core::net::NetworkCommand;
 
 use crate::gui::label;
-use crate::state::AppStateRef;
+use crate::state::UiDomainSync;
 use crate::utils::GUI_SPACING_LARGE;
 use crate::utils::GUI_SPACING_MID;
 use crate::utils::GUI_SPACING_XLARGE;
@@ -22,7 +22,7 @@ impl MessageBubble {
     pub(crate) fn widget(
         &self,
         app: &gtk::Application,
-        state: AppStateRef,
+        state: UiDomainSync,
     ) -> impl IsA<gtk::Widget> {
         let w_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
@@ -76,7 +76,7 @@ impl MessageBubble {
             .build()
     }
 
-    fn widget_content(&self, app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
+    fn widget_content(&self, app: &gtk::Application, state: UiDomainSync) -> impl IsA<gtk::Widget> {
         gtk::Label::new(Some(&self.inner.text))
     }
 }
@@ -97,7 +97,7 @@ impl From<SharedMessage> for MessageBubble {
 
 pub(crate) fn widget_viewport_chat(
     app: &gtk::Application,
-    state: AppStateRef,
+    state: UiDomainSync,
 ) -> impl IsA<gtk::Widget> {
     let vp_chat = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
@@ -143,7 +143,7 @@ pub(crate) fn widget_viewport_chat(
     vp_chat
 }
 
-fn widget_input_area(app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
+fn widget_input_area(app: &gtk::Application, state: UiDomainSync) -> impl IsA<gtk::Widget> {
     let w_frame = gtk::Frame::builder()
         .margin_top(GUI_SPACING_MID)
         .margin_bottom(GUI_SPACING_MID)

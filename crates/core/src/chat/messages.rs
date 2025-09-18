@@ -10,6 +10,8 @@ use chrono::{DateTime, Utc};
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+pub type MessageID = u32;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SharedMessage {
     #[serde(serialize_with = "ser_arc", deserialize_with = "deser_arc")]

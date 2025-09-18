@@ -4,7 +4,7 @@ use sremp_core::state::State;
 
 use crate::actions::register_actions;
 use crate::gui::start_gui;
-use crate::state::AppState;
+use crate::state::UiDomain;
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;
@@ -28,7 +28,7 @@ fn main() -> glib::ExitCode {
         let (command_tx, command_rx) = async_channel::bounded(CHANNEL_CAPACITY);
         let (event_tx, event_rx) = async_channel::bounded(CHANNEL_CAPACITY);
 
-        let state = AppState::new_or_load(command_tx, event_rx, rt)
+        let state = UiDomain::new_or_load(command_tx, event_rx, rt)
             .expect("could not load or create application state")
             .into_ref();
 

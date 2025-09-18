@@ -5,19 +5,17 @@ use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
 use sremp_core::{
     chat::Chat,
+    domain::{NetworkDomain, NetworkDomainSync},
     error::CoreResult,
     net::{NetworkCommand, NetworkEvent},
-    state::{State, StateSync},
 };
 
 pub(crate) mod tracked_widgets;
 use tracked_widgets::TrackedWidgets;
 
-type AppStateRefInner = Rc<RefCell<AppState>>;
-
 #[derive(Debug)]
-pub(crate) struct AppState {
-    pub(crate) core: StateSync,
+pub(crate) struct UiDomain {
+    pub(crate) core: NetworkDomainSync,
     pub(crate) command_channel: Sender<NetworkCommand>,
     pub(crate) event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
     pub(crate) rt: tokio::runtime::Runtime,
@@ -26,11 +24,11 @@ pub(crate) struct AppState {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct AppStateRef {
-    inner: AppStateRefInner,
+pub(crate) struct UiDomainSync {
+    inner: Rc<RefCell<UiDomain>>,
 }
 
-impl AppState {
+impl UiDomain {
     #[must_use]
     pub(crate) fn new(
         command_channel: Sender<NetworkCommand>,
@@ -38,7 +36,7 @@ impl AppState {
         rt: tokio::runtime::Runtime,
     ) -> Self {
         Self {
-            core: State::default().to_sync(),
+            core: NetworkDomain::default().to_sync(),
             command_channel,
             event_channel,
             rt,
@@ -92,16 +90,16 @@ impl AppState {
 
     #[must_use]
     #[inline]
-    pub(crate) fn into_ref(self) -> AppStateRef {
-        AppStateRef::new(self)
+    pub(crate) fn into_ref(self) -> UiDomainSync {
+        UiDomainSync::new(self)
     }
 
-    pub(crate) fn core(&self) -> RwLockReadGuard<'_, State> {
+    pub(crate) fn core(&self) -> RwLockReadGuard<'_, NetworkDomain> {
         log::trace!("accessing core state (immutable)");
         self.rt.block_on(async { self.core.read().await })
     }
 
-    pub(crate) fn core_mut(&self) -> RwLockWriteGuard<'_, State> {
+    pub(crate) fn core_mut(&self) -> RwLockWriteGuard<'_, NetworkDomain> {
         log::trace!("accessing core state (mutable)");
         self.rt.block_on(async { self.core.write().await })
     }
@@ -121,18 +119,18 @@ impl AppState {
     }
 }
 
-impl AppStateRef {
+impl UiDomainSync {
     #[must_use]
     #[inline]
-    pub(crate) fn new(state: AppState) -> Self {
+    pub(crate) fn new(state: UiDomain) -> Self {
         Self {
             inner: Rc::new(RefCell::new(state)),
         }
     }
 }
 
-impl Deref for AppStateRef {
-    type Target = AppStateRefInner;
+impl Deref for UiDomainSync {
+    type Target = UiDomainRefInner;
 
     fn deref(&self) -> &Self::Target {
         &self.inner

@@ -5,13 +5,13 @@ use std::{
 
 use super::ids::*;
 use super::macros::simple_action;
-use crate::{gui::connect::dialog_connect, state::AppStateRef};
+use crate::{gui::connect::dialog_connect, state::UiDomainSync};
 
 use gtk::{Application, prelude::*};
 use log::warn;
 use sremp_core::net::NetworkCommand;
 
-pub(super) fn register_actions(app: &Application, state: AppStateRef) {
+pub(super) fn register_actions(app: &Application, state: UiDomainSync) {
     simple_action!(app, state, _app_c, state_c, A_ID_CONNECTION_LISTEN!(), {
         send_command(
             &state_c,
@@ -32,7 +32,7 @@ pub(super) fn register_actions(app: &Application, state: AppStateRef) {
     );
 }
 
-fn send_command(state: &AppStateRef, cmd: NetworkCommand) {
+fn send_command(state: &UiDomainSync, cmd: NetworkCommand) {
     state
         .borrow()
         .command_channel

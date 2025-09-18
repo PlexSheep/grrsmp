@@ -1,10 +1,10 @@
 use gtk::prelude::*;
 use sremp_core::identity::{ContactIdentity, UserIdentity, format_key};
 
-use crate::{gui::label, state::AppStateRef, utils::GUI_SPACING_MID};
+use crate::{gui::label, state::UiDomainSync, utils::GUI_SPACING_MID};
 
 /// Creates and shows a dialog for creating a new user identity
-pub(crate) fn dialog_create_identity(app: &gtk::Application, state: AppStateRef) {
+pub(crate) fn dialog_create_identity(app: &gtk::Application, state: UiDomainSync) {
     if state.borrow().core().user_identity.is_some() {
         // TODO: don't allow creating a new identity when one already exists #8
         log::warn!("Creating a new identity even if you already have one");
@@ -195,7 +195,7 @@ fn show_identity_created_success(parent: &gtk::Window, user_identity: UserIdenti
 }
 
 /// Checks if the current app state has a user identity
-pub(crate) fn has_user_identity(state: &AppStateRef) -> bool {
+pub(crate) fn has_user_identity(state: &UiDomainSync) -> bool {
     state.borrow().core().user_identity.is_some()
 }
 

@@ -6,39 +6,15 @@ use log::info;
 
 use crate::{
     chat::messages::Message,
+    domain::{NetworkDomain, NetworkDomainSync, commands::NetworkCommand, events::NetworkEvent},
     error::CoreResult,
     identity::{ContactIdentity, format_key},
-    state::{State, StateSync},
 };
 
 pub mod connection;
 mod jobs;
 
 const JOB_ITERATION_INTERVAL_MS: u64 = 30;
-
-#[derive(Debug, Clone)]
-#[allow(clippy::large_enum_variant)]
-pub enum NetworkCommand {
-    Connect(SocketAddr),
-    Disconnect(SocketAddr),
-    SendMessage(SocketAddr, ContactIdentity, Message),
-    /// Associated [SocketAddr] is the local addres on which to listen, not a remote address
-    StartListener(SocketAddr),
-    StopListener,
-}
-
-#[derive(Debug, Clone)]
-pub enum NetworkEvent {
-    ConnectionEstablished(SocketAddr, VerifyingKey),
-    ConnectionLost(SocketAddr, VerifyingKey),
-    IncomingMessage(SocketAddr, VerifyingKey, Message),
-    MessageSent(SocketAddr, VerifyingKey, Message),
-    /// We stopped connecting for some reason
-    ConnectionAborted(SocketAddr),
-    ConnectionReset(SocketAddr),
-    ListenerStarted(SocketAddr),
-    ListenerStopped,
-}
 
 macro_rules! start_backend_job {
     ($rc_state:expr,$cmd_channel:expr,$event_channel:expr,$job:expr,$rt:expr,$fail_msg:expr) => {
@@ -59,9 +35,9 @@ macro_rules! start_backend_job {
     };
 }
 
-impl State {
+impl NetworkDomain {
     pub fn start_backend_worker(
-        rc_state: StateSync,
+        rc_state: NetworkDomainSync,
         command_channel: Receiver<NetworkCommand>,
         event_channel: Sender<NetworkEvent>,
         rt: &mut tokio::runtime::Runtime,
@@ -70,7 +46,7 @@ impl State {
             rc_state,
             command_channel,
             event_channel,
-            State::job_network_command_processing,
+            NetworkDomain::job_network_command_processing,
             rt,
             "network command processing job has failed"
         );
@@ -78,55 +54,11 @@ impl State {
             rc_state,
             command_channel,
             event_channel,
-            State::job_network_listener,
+            NetworkDomain::job_network_listener,
             rt,
             "network listener job has failed"
         );
         info!("Background workers have started");
         Ok(())
-    }
-}
-
-impl Display for NetworkCommand {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Connect(addr) => format!("Connect to {addr}"),
-                Self::Disconnect(addr) => format!("Disconnect from {addr}"),
-                Self::SendMessage(addr, id, _msg) =>
-                    format!("Send Message to {addr}: {}", id.identity.username()),
-                Self::StartListener(addr) =>
-                    format!("Start listening for incoming connection on {addr}"),
-                Self::StopListener => "Stop listening for incoming connections".to_string(),
-            }
-        )
-    }
-}
-
-impl Display for NetworkEvent {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::ConnectionEstablished(addr, key) =>
-                    format!("Connection established with {addr} ({})", format_key(key)),
-                Self::ConnectionLost(addr, key) =>
-                    format!("Peer {addr} ({}) has disconnected", format_key(key)),
-                Self::IncomingMessage(addr, key, _msg) =>
-                    format!("Message received from {addr} ({})", format_key(key)),
-                Self::MessageSent(addr, key, _msg) =>
-                    format!("Message sent to {addr} ({})", format_key(key)),
-                Self::ConnectionAborted(addr) =>
-                    format!("Connection to {addr} attempt was aborted"),
-                Self::ListenerStarted(addr) =>
-                    format!("Listener for incoming connection was started on {addr}"),
-                Self::ListenerStopped => "Listener for incoming connection was stopped".to_string(),
-                Self::ConnectionReset(addr) =>
-                    format!("Bad connection awards from {addr} was aborted",),
-            }
-        )
     }
 }

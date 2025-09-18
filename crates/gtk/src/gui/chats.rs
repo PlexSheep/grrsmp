@@ -2,12 +2,12 @@ use gtk::prelude::*;
 use sremp_core::chat::Chat;
 
 use crate::gui::label;
-use crate::state::AppStateRef;
+use crate::state::UiDomainSync;
 use crate::utils::{GUI_SPACING_LARGE, GUI_SPACING_MID};
 
 pub(crate) fn widget_chats_list(
     app: &gtk::Application,
-    state: AppStateRef,
+    state: UiDomainSync,
 ) -> impl IsA<gtk::Widget> {
     let w_list = gtk::ListBox::builder()
         .selection_mode(gtk::SelectionMode::None)
@@ -51,7 +51,7 @@ pub(crate) fn widget_chats_list(
 
 pub(crate) fn widget_chat_card(
     _app: &gtk::Application,
-    _state: AppStateRef,
+    _state: UiDomainSync,
     chat: &Chat,
 ) -> impl IsA<gtk::Widget> {
     let w_box = gtk::Box::builder()
