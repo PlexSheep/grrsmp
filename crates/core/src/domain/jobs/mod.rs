@@ -1,20 +1,19 @@
 use std::{collections::hash_map::Entry, net::SocketAddr};
 
 use async_channel::{Receiver, Sender};
-use log::{debug, error, info, warn};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net,
 };
 
 use crate::{
-    domain::{ConnectionData, NetworkDomain, NetworkDomainSync},
+    domain::{ConnectionData, NetworkCommand, NetworkDomain, NetworkDomainSync, NetworkEvent},
     error::{CoreError, CoreResult},
-    net::{NetworkCommand, NetworkEvent, connection::Connection},
+    net::connection::Connection,
 };
 
 impl NetworkDomain {
-    pub(crate) async fn job_network_command_processing(
+    pub(super) async fn job_network_command_processing(
         state: &NetworkDomainSync,
         command_channel: &mut Receiver<NetworkCommand>,
         event_channel: &mut Sender<NetworkEvent>,
@@ -28,7 +27,7 @@ impl NetworkDomain {
 
     // TODO: monitor connection or something? or create a job for each connection anyways?
 
-    pub(crate) async fn job_network_listener(
+    pub(super) async fn job_network_listener(
         state: &NetworkDomainSync,
         command_channel: &mut Receiver<NetworkCommand>,
         event_channel: &mut Sender<NetworkEvent>,
@@ -45,7 +44,7 @@ impl NetworkDomain {
                     match result {
                         Ok(s) => s,
                         Err(e) => {
-                            warn!("Could not accept connection attempt to listener: {e}");
+                            log::warn!("Could not accept connection attempt to listener: {e}");
                             return Ok(());
                         }
                     }
@@ -78,26 +77,26 @@ impl NetworkDomain {
         Ok(())
     }
 
-    pub(crate) async fn process_network_command(
+    pub(super) async fn process_network_command(
         &mut self,
         command: NetworkCommand,
     ) -> CoreResult<NetworkEvent> {
-        info!("Processing Network Command: {command}");
+        log::info!("Processing Network Command: {command}");
         let event = match command {
             NetworkCommand::Connect(remote) => self.connect_to(remote).await?,
             NetworkCommand::StartListener(listen_addr) => self.listen(listen_addr).await?,
             NetworkCommand::StopListener => {
                 if let Some(listener) = self.listener.take() {
-                    info!("Stopping listener");
+                    log::info!("Stopping listener");
                     drop(listener);
                 } else {
-                    warn!("No listener currently exists!")
+                    log::warn!("No listener currently exists!")
                 }
                 NetworkEvent::ListenerStopped
             }
             _ => todo!(),
         };
-        info!("Event emerged after processing the Network Command: {event}");
+        log::info!("Event emerged after processing the Network Command: {event}");
         Ok(event)
     }
 
@@ -106,15 +105,18 @@ impl NetworkDomain {
         remote: SocketAddr,
         connection: Connection,
     ) -> CoreResult<NetworkEvent> {
-        debug!("Initializing TLS connection for {remote}");
+        log::debug!("Initializing TLS connection for {remote}");
         let remote_identity = connection.peer_identity().await.clone();
 
         match self.active_connections.entry(remote) {
             // we already have a connection with this socket addr???
             Entry::Occupied(_en) => {
-                warn!("Duplicated connection, closing second connection...");
+                log::warn!("Duplicated connection, closing second connection...");
                 connection.disconnect().await?;
-                return Ok(NetworkEvent::ConnectionAborted(remote));
+                return Ok(NetworkEvent::ConnectionFailed(
+                    remote,
+                    "already connected to this peer".to_string(),
+                ));
             }
             Entry::Vacant(en) => en.insert(ConnectionData {
                 conn: connection,
@@ -154,7 +156,7 @@ impl NetworkDomain {
 
     async fn listen(&mut self, listen_addr: SocketAddr) -> CoreResult<NetworkEvent> {
         if self.listener.is_some() {
-            error!("tried to start listening, but a listener already exists!");
+            log::error!("tried to start listening, but a listener already exists!");
             panic!()
         }
         let listener = net::TcpListener::bind(listen_addr).await?;
