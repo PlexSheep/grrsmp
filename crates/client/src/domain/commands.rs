@@ -1,7 +1,7 @@
 use std::{fmt::Display, net::SocketAddr, sync::Arc};
 
 use ed25519_dalek::VerifyingKey;
-use sremp_core::chat::messages::SharedMessage;
+use sremp_core::{chat::messages::SharedMessage, identity::format_key};
 
 use crate::identity::{UserIdentity, format_key};
 
@@ -14,6 +14,7 @@ pub enum UiCommand {
     StopListener,
     Connect(SocketAddr),
     Disconnect(SocketAddr),
+    LoadChat(VerifyingKey),
 }
 
 impl Display for UiCommand {
@@ -35,6 +36,7 @@ impl Display for UiCommand {
                         id.identity.username()
                     )
                 }
+                Self::LoadChat(id) => format!("Load chat for contact {}, id any", format_key(&id)),
             }
         )
     }

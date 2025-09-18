@@ -11,8 +11,9 @@ pub mod known_identities;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct ApplicationDomain {
-    pub known_identities: KnownIdentities,
-    pub chats: HashMap<VerifyingKey, Chat>,
+    pub(crate) known_identities: KnownIdentities,
+    pub(crate) chats: HashMap<VerifyingKey, Chat>,
+    pub(crate) user_identity: Option<UserIdentity>,
 }
 
 impl ApplicationDomain {
