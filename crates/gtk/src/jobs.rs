@@ -4,7 +4,7 @@
 #![deny(clippy::await_holding_lock)]
 
 use log::trace;
-use sremp_core::net::NetworkEvent;
+use sremp_client::domain::UiEvent;
 
 use crate::domain::UiDomainSync;
 
@@ -21,22 +21,15 @@ async fn event_processor(state: UiDomainSync) {
                 log::info!("Processing network event: {event}");
 
                 match event {
-                    NetworkEvent::ListenerStarted(_addr) => {
+                    UiEvent::ListenerStarted(_addr) => {
                         update_listener_label(&state.borrow());
                     }
-                    NetworkEvent::ListenerStopped => {
+                    UiEvent::ListenerStopped => {
                         update_listener_label(&state.borrow());
                     }
-                    NetworkEvent::ConnectionEstablished(_addr, _key) => {
-                        // Add new chat, update chat list, etc.
+                    other => {
+                        log::warn!("Received unimplemented Ui event: {other}")
                     }
-                    NetworkEvent::IncomingMessage(_addr, _key, _msg) => {
-                        // Update chat window, show notification, etc.
-                    }
-                    NetworkEvent::ConnectionLost(_addr, _key) => {
-                        // Update connection status, maybe show error
-                    }
-                    _ => {}
                 }
             }
         }
