@@ -10,13 +10,17 @@ use crate::gui::start_application;
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;
-pub(crate) const APP_ID: &str = "de.cscherr.sremp";
+pub(crate) const GUI_SPACING_MID: i32 = 8;
+pub(crate) const GUI_SPACING_LARGE: i32 = 12;
+pub(crate) const GUI_SPACING_XLARGE: i32 = 16;
+pub(crate) const GUI_SPACING_XXLARGE: i32 = 24;
+pub(crate) const GUI_SPACING_XXXLARGE: i32 = 32;
+pub const APP_ID: &str = "de.cscherr.sremp";
 
 mod actions;
 mod domain;
 mod gui;
 mod jobs;
-mod utils;
 
 fn main() -> glib::ExitCode {
     env_logger::builder()
@@ -55,7 +59,7 @@ fn start_gui(command_tx: Sender<UiCommand>, event_rx: Receiver<UiEvent>) -> glib
     let app = Application::builder().application_id(APP_ID).build();
 
     app.connect_activate(move |app| {
-        let domain = UiDomain::new(command_tx, event_rx).into_sync();
+        let domain = UiDomain::new(command_tx.clone(), event_rx.clone()).into_sync();
 
         register_actions(app, domain.clone());
         start_application(app, domain.clone());
@@ -64,4 +68,10 @@ fn start_gui(command_tx: Sender<UiCommand>, event_rx: Receiver<UiEvent>) -> glib
     });
 
     app.run()
+}
+
+pub fn version() -> String {
+    format!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))
+        .trim()
+        .to_string()
 }
