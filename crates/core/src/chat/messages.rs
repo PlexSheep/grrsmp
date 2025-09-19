@@ -71,13 +71,13 @@ macro_rules! declare_flags {
 declare_flags!(MessageFlags, received, sent, read);
 
 impl MessageFlags {
-    pub fn set_sent(&self, value: bool) {
+    pub(crate) fn set_sent(&self, value: bool) {
         *self.sent.lock().unwrap() = value;
     }
-    pub fn set_received(&self, value: bool) {
+    pub(crate) fn set_received(&self, value: bool) {
         *self.received.lock().unwrap() = value;
     }
-    pub fn set_read(&self, value: bool) {
+    pub(crate) fn set_read(&self, value: bool) {
         *self.read.lock().unwrap() = value;
     }
 }
