@@ -1,7 +1,7 @@
 use gtk::{Application, prelude::*};
 use log::warn;
 
-use crate::{actions::macros::simple_action, state::AppStateRef};
+use crate::{actions::macros::simple_action, domain::UiDomainSync};
 
 mod chat;
 mod connection;
@@ -61,7 +61,7 @@ pub(crate) mod ids {
     aid!(A_ID_IDENTITY_SHOW_CONTACT, "identity.show_user");
 }
 
-pub(super) fn register_actions(app: &Application, state: AppStateRef) {
+pub(super) fn register_actions(app: &Application, state: UiDomainSync) {
     settings::register_actions(app, state.clone());
     connection::register_actions(app, state.clone());
     chat::register_actions(app, state.clone());

@@ -1,7 +1,6 @@
 # SREMP Specification
 
 - **Version 0.1-draft**
-- **Status: In Development**
 
 ## Abstract
 
@@ -17,7 +16,7 @@ This document uses a mix of ABNF-like (RFC 5234) notation and Rust-like Pseudoco
 
 - `Name := { field: type, field: type }` defines structured data
 - `Name := VALUE1 | VALUE2` defines enumerated types
-- `Vec<Type>` represents arrays of the specified type
+- `List<Type>` represents arrays of the specified type
 - `Optional<Type>` represents nullable fields
 - `DateTime<TZ>` represents a time and date in the time zone `TZ`
 
@@ -103,8 +102,8 @@ Flags := {
 }
 
 Extensions := {
-    profile_picture: Optional<Vec<u8>>,
-    additional_metadata: Optional<Map<String, Vec<u8>>>
+    profile_picture: Optional<List<u8>>,
+    additional_metadata: Optional<Map<String, List<u8>>>
 }
 
 UserIdentity := {
@@ -227,7 +226,7 @@ LOOKUP_REQUEST := {
 }
 
 LOOKUP_RESPONSE := {
-    peers: Vec<PeerInfo>,
+    peers: List<PeerInfo>,
     error_message: Optional<String>
 }
 
@@ -254,7 +253,7 @@ Clients discover additional rendezvous servers through gossip protocols:
 LIST_SERVERS_REQUEST := {}
 
 LIST_SERVERS_RESPONSE := {
-    servers: Vec<SocketAddr>,
+    servers: List<SocketAddr>,
     timestamp: Timestamp
 }
 ```
@@ -289,7 +288,7 @@ Clients store encrypted messages for offline recipients and track delivery statu
 ```
 STORE_MESSAGE := {
     recipient: Ed25519PublicKey,
-    encrypted_blob: Vec<u8>,
+    encrypted_blob: List<u8>,
     sender_signature: Ed25519Signature,
     message_id: MessageId
 }
@@ -307,7 +306,7 @@ RETRIEVE_MESSAGES := {
 }
 
 MESSAGE_BATCH := {
-    messages: Vec<StoredMessage>,
+    messages: List<StoredMessage>,
     has_more: Boolean
 }
 
@@ -315,7 +314,7 @@ StoredMessage := {
     message_id: MessageId,
     sender: Ed25519PublicKey,
     timestamp: Timestamp,
-    encrypted_blob: Vec<u8>
+    encrypted_blob: List<u8>
 }
 
 DELIVERY_CONFIRMATION := {
@@ -396,7 +395,7 @@ CHUNK_HEADER := {
 
 CHUNKED_MESSAGE := {
     header: CHUNK_HEADER,
-    payload: Vec<u8>
+    payload: List<u8>
 }
 ```
 

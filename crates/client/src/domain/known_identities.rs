@@ -6,7 +6,7 @@ use std::{
 use ed25519_dalek::VerifyingKey;
 use serde::{Deserialize, Serialize};
 
-use crate::identity::ContactIdentity;
+use sremp_core::identity::ContactIdentity;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct KnownIdentities {

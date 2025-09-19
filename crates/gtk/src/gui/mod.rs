@@ -2,8 +2,8 @@ use std::fmt::Display;
 
 use gtk::prelude::*;
 
-use crate::state::AppStateRef;
-use crate::utils::GUI_SPACING_XXLARGE;
+use crate::GUI_SPACING_XXLARGE;
+use crate::domain::UiDomainSync;
 
 pub(crate) mod chat;
 pub(crate) mod chats;
@@ -15,7 +15,7 @@ use chat::*;
 use chats::*;
 use topbar::*;
 
-pub(crate) fn start_gui(app: &gtk::Application, state: AppStateRef) {
+pub(crate) fn start_application(app: &gtk::Application, state: UiDomainSync) {
     let w_window_content = gtk::Box::builder()
         .overflow(gtk::Overflow::Hidden)
         .orientation(gtk::Orientation::Horizontal)

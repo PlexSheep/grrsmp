@@ -2,27 +2,26 @@ use std::ops::Deref;
 
 use chrono::Utc;
 use gtk::prelude::*;
-use sremp_core::chat::messages::{Message, MessageText};
+use sremp_core::chat::messages::{Message, SharedMessage};
 use sremp_core::identity::ContactIdentity;
-use sremp_core::net::NetworkCommand;
 
+use crate::GUI_SPACING_LARGE;
+use crate::GUI_SPACING_MID;
+use crate::GUI_SPACING_XLARGE;
+use crate::GUI_SPACING_XXXLARGE;
+use crate::domain::UiDomainSync;
 use crate::gui::label;
-use crate::state::AppStateRef;
-use crate::utils::GUI_SPACING_LARGE;
-use crate::utils::GUI_SPACING_MID;
-use crate::utils::GUI_SPACING_XLARGE;
-use crate::utils::GUI_SPACING_XXXLARGE;
 
 #[derive(Debug, Clone)]
 pub(crate) struct MessageBubble {
-    inner: Message,
+    inner: SharedMessage,
 }
 
 impl MessageBubble {
     pub(crate) fn widget(
         &self,
         app: &gtk::Application,
-        state: AppStateRef,
+        state: UiDomainSync,
     ) -> impl IsA<gtk::Widget> {
         let w_box = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
@@ -31,13 +30,7 @@ impl MessageBubble {
             .orientation(gtk::Orientation::Horizontal)
             .build();
 
-        let author = match state
-            .borrow()
-            .core()
-            .known_identities
-            .get(&self.meta().author_key)
-            .cloned()
-        {
+        let author = match todo!() {
             Some(a) => a,
             None => panic!("unknwon author: {:?}", self.meta().author_key.to_bytes()),
         };
@@ -76,38 +69,28 @@ impl MessageBubble {
             .build()
     }
 
-    fn widget_content(&self, app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
-        match &self.inner {
-            Message::Text(m) => Self::widget_content_text(app, state, m),
-        }
-    }
-
-    fn widget_content_text(
-        _app: &gtk::Application,
-        _state: AppStateRef,
-        msg: &MessageText,
-    ) -> impl IsA<gtk::Widget> {
-        gtk::Label::new(Some(&msg.text))
+    fn widget_content(&self, app: &gtk::Application, state: UiDomainSync) -> impl IsA<gtk::Widget> {
+        gtk::Label::new(Some(&self.inner.text))
     }
 }
 
 impl Deref for MessageBubble {
-    type Target = Message;
+    type Target = SharedMessage;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl From<Message> for MessageBubble {
-    fn from(value: Message) -> Self {
+impl From<SharedMessage> for MessageBubble {
+    fn from(value: SharedMessage) -> Self {
         MessageBubble { inner: value }
     }
 }
 
 pub(crate) fn widget_viewport_chat(
     app: &gtk::Application,
-    state: AppStateRef,
+    state: UiDomainSync,
 ) -> impl IsA<gtk::Widget> {
     let vp_chat = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
@@ -121,17 +104,19 @@ pub(crate) fn widget_viewport_chat(
         .build();
 
     let dbg_contact = ContactIdentity::debug_contact();
+
     state
         .borrow()
         .core_mut()
         .known_identities
         .insert(dbg_contact.identity.public_key, dbg_contact.clone());
     for number in (0..=100).rev() {
-        let msg = Message::new_text(
+        let msg: SharedMessage = Message::new(
             format!("foo bar {number} years ago"),
             chrono::Utc::now(),
             dbg_contact.identity.public_key,
-        );
+        )
+        .into();
         let bubble: MessageBubble = msg.into();
         w_list_box.append(&bubble.widget(app, state.clone()));
     }
@@ -152,7 +137,7 @@ pub(crate) fn widget_viewport_chat(
     vp_chat
 }
 
-fn widget_input_area(app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk::Widget> {
+fn widget_input_area(app: &gtk::Application, state: UiDomainSync) -> impl IsA<gtk::Widget> {
     let w_frame = gtk::Frame::builder()
         .margin_top(GUI_SPACING_MID)
         .margin_bottom(GUI_SPACING_MID)
@@ -232,7 +217,7 @@ fn widget_input_area(app: &gtk::Application, state: AppStateRef) -> impl IsA<gtk
                 .borrow()
                 .selected_chat()
                 .expect("no chat is selected?");
-            let msg = Message::new_text(text, Utc::now(), chat.contact().identity.public_key);
+            let msg = Message::new(text, Utc::now(), chat.contact().identity.public_key);
             state
                 .borrow()
                 .command_channel

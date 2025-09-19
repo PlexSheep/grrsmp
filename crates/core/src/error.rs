@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use thiserror::Error;
 
-use crate::net::{NetworkCommand, NetworkEvent};
+use crate::domain::{NetworkCommand, NetworkEvent};
 
 pub type CoreResult<T> = std::result::Result<T, CoreError>;
 
@@ -15,9 +15,9 @@ pub enum CoreError {
     #[error("Could not load the application store")]
     ChannelRecv(#[from] async_channel::RecvError),
     #[error("Could send a network event to the over the local async channel")]
-    ChannelSendEvent(#[from] async_channel::SendError<NetworkEvent>),
+    ChannelSendNetEvent(#[from] async_channel::SendError<NetworkEvent>),
     #[error("Could send a network command to the over the local async channel")]
-    ChannelSendCmd(#[from] async_channel::SendError<NetworkCommand>),
+    ChannelSendNetCmd(#[from] async_channel::SendError<NetworkCommand>),
     #[error("Noise protocol error: {0}")]
     Noise(#[from] snow::Error),
     #[error("MessagePack encode error: {0}")]
