@@ -2,7 +2,7 @@
 
 ## Foreword
 
-To try and keep the motivation high and improve project transparecy, I am
+To try and keep the motivation high and improve project transparency, I am
 starting a development log. This document contains some information about the
 development sessions of the authors. In case this project becomes actually
 bigger, this will likely get archived as impractical to maintain, but while it's
@@ -18,32 +18,40 @@ day as part of the previous one. It's just more convenient that way.
 
 ### Progress
 
-- Thought about the software architecture. What we have is crap and makes deadlocks and bugs easy.
+- Thought about the software architecture for a few days. What we have is
+  crap and makes deadlocks and bugs easy.
+- Wrote a concept for that 3 domain architecture. Yeah, I didn't write it myself
+  but used an LLM. I want to code, not write tons of text, okay?!
 
 ### Decisions
 
-- Decided on the 3 domain layout: Network domain, Application domain, Ui Domain.
+- Decided on the 3 domain layout: Network domain, Application domain, UI Domain.
 - The domains communicate with specific interfaces only: Commands and events. Commands go down and events go up.
-- Application domain goes into a client crate. All clients may use the client domain and simply program another Ui domain, as clients mostly need to do the same.
+- Application domain goes into a client crate. All clients may use the client domain and simply program another UI domain, as clients mostly need to do the same.
 
 ### Notes
 
-- I did the refactoring of client and core. No idea how to implement the system with the ui domain though.
+- I did the refactoring of client and core. No idea how to implement the system with the UI domain though.
+
+### Mood
+
+- Neutral, but Getting that UI domain to work with commands and events seems
+  kind of difficult
 
 ## 2025-09-16 (plexsheep)
 
 ### Progress
 
 - Specified the rust like notation
-- The deadlock comes from the tcp listener in the job for it. The job gets
-  a mutable reference to the tcp listener by locking the core state,
+- The deadlock comes from the TCP listener in the job for it. The job gets
+  a mutable reference to the TCP listener by locking the core state,
   meaning no other thread can use the core state. The bad news is that we need
-  a mutuable ref to that thing...
-- WAIT `tokio::net::TcpListener::accept` does _not_ need a mutuable reference!
+  a mutable ref to that thing...
+- WAIT `tokio::net::TcpListener::accept` does _not_ need a mutable reference!
   I can just use regular ones and it should work!
-- I also added a timeout to the tcp listener job, so that there are points in
-  time where no one holds a reference, so that getting a mutable reference (lock)
-  is possible (which is needed by the identity creation gui). #9
+- I also added a timeout to the TCP listener job, so that there are points in
+  time when no one holds a reference, so that getting a mutable reference (lock)
+  is possible (which is needed by the identity creation GUI). #9
 - I now got the first partial noise handshake! We start a listener, create an identity,
   then connect to our own listener. Sadly, the listener does not actually reply
   with noise protocol messages for the handshake yet for some reason.
@@ -54,13 +62,13 @@ day as part of the previous one. It's just more convenient that way.
 - I need to do something about those deadlocks. The application starts hanging
   when some actions are combined, forever
 - I already inline pretty much all lock actions, never hold across await
-  (i deny that clippy warning actually), but still.
+  (I deny that clippy warning actually), but still.
 - Having Synchronous GUI code might be part of the issue. Does the whole tokio
-  runtime block when i use block_on to get a lock?
+  runtime block when I use block_on to get a lock?
 - While I was able to fix my immediate deadlock problem, the architecture is
   suboptimal and will lead to more deadlocks. I should improve the state system in
   a way that makes deadlocks impossible or at least much less likely. I should
-  also be sure to remember to add timeouts and be critical of await when i have
+  also be sure to remember to add timeouts and be critical of await when I have
   a lock.
 
 ### Mood
@@ -73,9 +81,9 @@ I could have multiple mutable references.
 ### Progress
 
 - Slop specification was written
-- Removed non-critical stuff from the Readme, and text is now all authentic
+- Removed non-critical stuff from the README, and text is now all authentic
 - Fancy network stack diagram for spec
-- Create identity in gui #4
+- Create identity in GUI #4
 
 ### Decisions
 
