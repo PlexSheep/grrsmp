@@ -25,31 +25,12 @@ pub struct NetworkDomain {
     pub(crate) listener: Option<TcpListener>,
 }
 
-macro_rules! start_backend_job {
-    ($rc_state:expr,$cmd_channel:expr,$event_channel:expr,$job:expr,$rt:expr,$fail_msg:expr) => {
-        let rc_state_copy = $rc_state.clone();
-        let mut cmd_c = $cmd_channel.clone();
-        let mut evt_c = $event_channel.clone();
-        $rt.spawn(async move {
-            loop {
-                $job(&rc_state_copy, &mut cmd_c, &mut evt_c)
-                    .await
-                    .expect($fail_msg);
-                tokio::time::sleep(tokio::time::Duration::from_millis(
-                    JOB_ITERATION_INTERVAL_MS,
-                ))
-                .await
-            }
-        });
-    };
-}
-
 impl NetworkDomain {
     pub fn new() -> Self {
         Self::default()
     }
 
-    fn to_sync(self) -> NetworkDomainSync {
+    fn into_sync(self) -> NetworkDomainSync {
         Arc::new(RwLock::new(self))
     }
 
@@ -65,7 +46,7 @@ impl NetworkDomain {
         command_channel: Receiver<NetworkCommand>,
         event_channel: Sender<NetworkEvent>,
     ) -> CoreResult<()> {
-        let ssy = self.to_sync();
+        let ssy = self.into_sync();
         loop {
             let this = ssy.read().await;
             tokio::select! {
