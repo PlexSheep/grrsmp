@@ -1,22 +1,18 @@
+use std::{cell::RefCell, ops::Deref, rc::Rc};
+
 use async_channel::{Receiver, Sender};
 use ed25519_dalek::VerifyingKey;
-use std::{cell::RefCell, ops::Deref, rc::Rc};
-use tokio::sync::{RwLockReadGuard, RwLockWriteGuard};
 
-use sremp_core::{
-    chat::Chat,
-    domain::{NetworkDomain, NetworkDomainSync},
-    error::CoreResult,
-    net::{NetworkCommand, NetworkEvent},
-};
+use sremp_client::domain::{UiCommand, UiEvent};
+use sremp_core::{chat::Chat, error::CoreResult};
 
 pub(crate) mod tracked_widgets;
 use tracked_widgets::TrackedWidgets;
 
 #[derive(Debug)]
 pub(crate) struct UiDomain {
-    pub(crate) command_channel: Sender<NetworkCommand>,
-    pub(crate) event_channel: Receiver<NetworkEvent>, // TODO: process the received events somehow
+    pub(crate) command_channel: Sender<UiCommand>,
+    pub(crate) event_channel: Receiver<UiEvent>, // TODO: process the received events somehow
     pub(crate) tracked_widgets: TrackedWidgets,
     pub(crate) selected_chat: Option<VerifyingKey>,
 }
@@ -29,8 +25,8 @@ pub(crate) struct UiDomainSync {
 impl UiDomain {
     #[must_use]
     pub(crate) fn new(
-        command_channel: Sender<NetworkCommand>,
-        event_channel: Receiver<NetworkEvent>,
+        command_channel: Sender<UiCommand>,
+        event_channel: Receiver<UiEvent>,
     ) -> Self {
         Self {
             command_channel,
@@ -41,21 +37,11 @@ impl UiDomain {
     }
 
     pub(crate) fn set_selected_chat(&mut self, key: Option<VerifyingKey>) -> CoreResult<()> {
-        if let Some(key) = key {
-            if self.core().chats.contains_key(&key) {
-                self.selected_chat = Some(key);
-            } else {
-                panic!("given key not found in chats")
-            }
-        } else {
-            self.selected_chat = None;
-        }
-        Ok(())
+        todo!()
     }
 
     pub(crate) fn selected_chat(&self) -> Option<Chat> {
-        let key = self.selected_chat?;
-        Some(self.core().chats[&key].clone())
+        todo!()
     }
 
     #[must_use]
@@ -64,28 +50,8 @@ impl UiDomain {
         UiDomainSync::new(self)
     }
 
-    pub(crate) fn core(&self) -> RwLockReadGuard<'_, NetworkDomain> {
-        log::trace!("accessing core state (immutable)");
-        self.rt.block_on(async { self.core.read().await })
-    }
-
-    pub(crate) fn core_mut(&self) -> RwLockWriteGuard<'_, NetworkDomain> {
-        log::trace!("accessing core state (mutable)");
-        self.rt.block_on(async { self.core.write().await })
-    }
-
     pub(crate) fn fmt_listen_status(&self) -> String {
-        let listener = &self.core().listener;
-        if let Some(listener) = listener {
-            format!(
-                "Listening on {}",
-                listener
-                    .local_addr()
-                    .expect("could not read local address of listener")
-            )
-        } else {
-            "No listener active".to_string()
-        }
+        todo!()
     }
 }
 
@@ -100,7 +66,7 @@ impl UiDomainSync {
 }
 
 impl Deref for UiDomainSync {
-    type Target = UiDomainRefInner;
+    type Target = Rc<RefCell<UiDomain>>;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
