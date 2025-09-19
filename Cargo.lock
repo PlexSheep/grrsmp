@@ -1520,6 +1520,7 @@ dependencies = [
  "rmp-serde",
  "serde",
  "sremp-core",
+ "thiserror",
  "tokio",
 ]
 

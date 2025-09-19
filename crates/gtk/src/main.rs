@@ -36,7 +36,7 @@ fn main() -> glib::ExitCode {
         .start(net_command_rx, net_event_tx, &mut rt)
         .expect("could not start network domain");
 
-    let app_domain = sremp_client::domain::ApplicationDomain::new();
+    let app_domain = sremp_client::domain::ClientDomain::new();
     app_domain
         .start(
             net_command_tx,

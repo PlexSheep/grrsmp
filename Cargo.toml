@@ -27,6 +27,7 @@ tokio = { version = "1", features = ["full"] }
 tokio-stream = { version = "0.1", features = ["full"] }
 async-channel = "2.5.0"
 rmp-serde = "1"
+thiserror = "2"
 
 [workspace]
 resolver = "3"

@@ -3,13 +3,14 @@ use std::{
     str::FromStr,
 };
 
+use sremp_core::domain::NetworkCommand;
+
 use super::ids::*;
 use super::macros::simple_action;
 use crate::{domain::UiDomainSync, gui::connect::dialog_connect};
 
 use gtk::{Application, prelude::*};
 use log::warn;
-use sremp_core::net::NetworkCommand;
 
 pub(super) fn register_actions(app: &Application, state: UiDomainSync) {
     simple_action!(app, state, _app_c, state_c, A_ID_CONNECTION_LISTEN!(), {
