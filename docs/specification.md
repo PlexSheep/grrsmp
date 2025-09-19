@@ -1,7 +1,6 @@
 # SREMP Specification
 
 - **Version 0.1-draft**
-- **Status: In Development**
 
 ## Abstract
 
