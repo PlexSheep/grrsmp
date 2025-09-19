@@ -1,9 +1,7 @@
 use std::{fmt::Display, net::SocketAddr, sync::Arc};
 
 use ed25519_dalek::VerifyingKey;
-use sremp_core::chat::messages::SharedMessage;
-
-use crate::identity::format_key;
+use sremp_core::{chat::messages::SharedMessage, identity::format_key};
 
 #[derive(Debug, Clone)]
 pub enum UiEvent {

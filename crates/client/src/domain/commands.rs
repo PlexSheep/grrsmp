@@ -1,9 +1,10 @@
-use std::{fmt::Display, net::SocketAddr, sync::Arc};
+use std::{fmt::Display, net::SocketAddr};
 
 use ed25519_dalek::VerifyingKey;
-use sremp_core::{chat::messages::SharedMessage, identity::format_key};
-
-use crate::identity::{UserIdentity, format_key};
+use sremp_core::{
+    chat::messages::SharedMessage,
+    identity::{UserIdentity, format_key},
+};
 
 #[derive(Debug, Clone)]
 #[allow(clippy::large_enum_variant)]
@@ -25,7 +26,7 @@ impl Display for UiCommand {
             match self {
                 Self::Connect(addr) => format!("Connect to {addr}"),
                 Self::Disconnect(addr) => format!("Disconnect from {addr}"),
-                Self::SendMessage(id, _msg) => format!("Send Message to {}", format_key(&id)),
+                Self::SendMessage(id, _msg) => format!("Send Message to {}", format_key(id)),
                 Self::StartListener(addr) =>
                     format!("Start listening for incoming connection on {addr}"),
                 Self::StopListener => "Stop listening for incoming connections".to_string(),
@@ -36,7 +37,7 @@ impl Display for UiCommand {
                         id.identity.username()
                     )
                 }
-                Self::LoadChat(id) => format!("Load chat for contact {}, id any", format_key(&id)),
+                Self::LoadChat(id) => format!("Load chat for contact {}, id any", format_key(id)),
             }
         )
     }
