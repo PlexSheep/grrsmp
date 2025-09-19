@@ -1,10 +1,12 @@
+use async_channel::{Receiver, Sender};
 use gtk::prelude::*;
 use gtk::{Application, glib};
-use sremp_core::state::State;
+
+use sremp_client::domain::{UiCommand, UiEvent};
 
 use crate::actions::register_actions;
 use crate::domain::UiDomain;
-use crate::gui::start_gui;
+use crate::gui::start_application;
 
 /// maximum of 10 messages queues, otherwise crash
 const CHANNEL_CAPACITY: usize = 10;
@@ -21,25 +23,44 @@ fn main() -> glib::ExitCode {
         .filter_level(log::LevelFilter::Trace)
         .parse_default_env()
         .init();
+    let mut rt = tokio::runtime::Runtime::new().expect("could not create tokio runtime");
+
+    let (net_command_tx, net_command_rx) = async_channel::unbounded();
+    let (net_event_tx, net_event_rx) = async_channel::unbounded();
+
+    let (ui_command_tx, ui_command_rx) = async_channel::unbounded();
+    let (ui_event_tx, ui_event_rx) = async_channel::unbounded();
+
+    let net_domain = sremp_core::domain::NetworkDomain::new();
+    net_domain
+        .start(net_command_rx, net_event_tx, &mut rt)
+        .expect("could not start network domain");
+
+    let app_domain = sremp_client::domain::ApplicationDomain::new();
+    app_domain
+        .start(
+            net_command_tx,
+            net_event_rx,
+            ui_command_rx,
+            ui_event_tx,
+            &mut rt,
+        )
+        .expect("could not start application domain");
+
+    let ret = start_gui(ui_command_tx, ui_event_rx);
+    return ret;
+}
+
+fn start_gui(command_tx: Sender<UiCommand>, event_rx: Receiver<UiEvent>) -> glib::ExitCode {
     let app = Application::builder().application_id(APP_ID).build();
 
     app.connect_activate(move |app| {
-        let rt = tokio::runtime::Runtime::new().expect("could not create tokio runtime");
-        let (command_tx, command_rx) = async_channel::bounded(CHANNEL_CAPACITY);
-        let (event_tx, event_rx) = async_channel::bounded(CHANNEL_CAPACITY);
+        let domain = UiDomain::new(command_tx, event_rx).into_sync();
 
-        let state = UiDomain::new_or_load(command_tx, event_rx, rt)
-            .expect("could not load or create application state")
-            .into_ref();
+        register_actions(app, domain.clone());
+        start_application(app, domain.clone());
 
-        let cc = state.borrow().core.clone();
-        State::start_backend_worker(cc, command_rx, event_tx, &mut state.borrow_mut().rt)
-            .expect("could not start backend worker");
-
-        register_actions(app, state.clone());
-        start_gui(app, state.clone());
-
-        jobs::start_jobs(state);
+        jobs::start_jobs(domain);
     });
 
     app.run()

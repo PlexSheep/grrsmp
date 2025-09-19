@@ -15,7 +15,7 @@ use chat::*;
 use chats::*;
 use topbar::*;
 
-pub(crate) fn start_gui(app: &gtk::Application, state: UiDomainSync) {
+pub(crate) fn start_application(app: &gtk::Application, state: UiDomainSync) {
     let w_window_content = gtk::Box::builder()
         .overflow(gtk::Overflow::Hidden)
         .orientation(gtk::Orientation::Horizontal)

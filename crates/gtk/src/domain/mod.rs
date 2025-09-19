@@ -40,31 +40,6 @@ impl UiDomain {
         }
     }
 
-    #[inline]
-    pub(crate) fn new_or_load(
-        command_channel: Sender<NetworkCommand>,
-        event_channel: Receiver<NetworkEvent>,
-        rt: tokio::runtime::Runtime,
-    ) -> CoreResult<Self> {
-        // TODO: add load condition
-        if false {
-            Self::load(command_channel, event_channel, rt)
-        } else {
-            Ok(Self::new(command_channel, event_channel, rt))
-        }
-    }
-
-    pub(crate) fn load(
-        _command_channel: Sender<NetworkCommand>,
-        _event_channel: Receiver<NetworkEvent>,
-        _rt: tokio::runtime::Runtime,
-    ) -> CoreResult<Self> {
-        // TODO: impl load from disk
-        Err(sremp_core::error::CoreError::Load(
-            sremp_core::error::LoadError::Placeholder,
-        ))
-    }
-
     pub(crate) fn set_selected_chat(&mut self, key: Option<VerifyingKey>) -> CoreResult<()> {
         if let Some(key) = key {
             if self.core().chats.contains_key(&key) {
@@ -85,7 +60,7 @@ impl UiDomain {
 
     #[must_use]
     #[inline]
-    pub(crate) fn into_ref(self) -> UiDomainSync {
+    pub(crate) fn into_sync(self) -> UiDomainSync {
         UiDomainSync::new(self)
     }
 
