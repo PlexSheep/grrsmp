@@ -2,8 +2,8 @@ use std::fmt::Display;
 
 use gtk::prelude::*;
 
+use crate::GUI_SPACING_XXLARGE;
 use crate::domain::UiDomainSync;
-use crate::utils::GUI_SPACING_XXLARGE;
 
 pub(crate) mod chat;
 pub(crate) mod chats;

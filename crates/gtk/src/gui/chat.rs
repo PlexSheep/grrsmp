@@ -4,14 +4,13 @@ use chrono::Utc;
 use gtk::prelude::*;
 use sremp_core::chat::messages::{Message, SharedMessage};
 use sremp_core::identity::ContactIdentity;
-use sremp_core::net::NetworkCommand;
 
+use crate::GUI_SPACING_LARGE;
+use crate::GUI_SPACING_MID;
+use crate::GUI_SPACING_XLARGE;
+use crate::GUI_SPACING_XXXLARGE;
 use crate::domain::UiDomainSync;
 use crate::gui::label;
-use crate::utils::GUI_SPACING_LARGE;
-use crate::utils::GUI_SPACING_MID;
-use crate::utils::GUI_SPACING_XLARGE;
-use crate::utils::GUI_SPACING_XXXLARGE;
 
 #[derive(Debug, Clone)]
 pub(crate) struct MessageBubble {
@@ -31,13 +30,7 @@ impl MessageBubble {
             .orientation(gtk::Orientation::Horizontal)
             .build();
 
-        let author = match state
-            .borrow()
-            .core()
-            .known_identities
-            .get(&self.meta().author_key)
-            .cloned()
-        {
+        let author = match todo!() {
             Some(a) => a,
             None => panic!("unknwon author: {:?}", self.meta().author_key.to_bytes()),
         };
@@ -111,6 +104,7 @@ pub(crate) fn widget_viewport_chat(
         .build();
 
     let dbg_contact = ContactIdentity::debug_contact();
+
     state
         .borrow()
         .core_mut()
