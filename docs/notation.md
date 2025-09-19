@@ -46,7 +46,7 @@ EnumName := Variant1 | Variant2 | Variant3
 ### 1.4 Composite Types
 
 - `[T]`: Array of type T
-- `Vec<T>`: Ordered collection of type T
+- `List<T>`: Ordered collection of type T
 - `Optional<T>`: Nullable field of type T
 - `Map<K, V>`: Key-value mapping from type K to type V
 - `Result<T, E>`: Success value T or error E
