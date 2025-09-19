@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use async_channel::{Receiver, Sender};
-use tokio::{net::TcpListener, sync::RwLock};
+use tokio::{net::TcpListener, sync::RwLock, task::JoinHandle};
 
 mod active_connections;
 mod commands;
@@ -53,30 +53,51 @@ impl NetworkDomain {
         Arc::new(RwLock::new(self))
     }
 
-    pub fn run(
+    async fn get_listener_or_wait(&self) -> &TcpListener {
+        match &self.listener {
+            Some(l) => l,
+            None => std::future::pending().await,
+        }
+    }
+
+    async fn run(
+        self,
+        command_channel: Receiver<NetworkCommand>,
+        event_channel: Sender<NetworkEvent>,
+    ) -> CoreResult<()> {
+        let ssy = self.to_sync();
+        loop {
+            let this = ssy.read().await;
+            tokio::select! {
+                cmd = command_channel.recv() => {
+                    drop(this);
+                    let event = ssy.write().await.process_network_command(cmd?).await?;
+                    event_channel.send(event).await?;
+                },
+                incoming = this.get_listener_or_wait().await.accept() => {
+                    drop(this);
+                    let (stream, remote) = incoming?;
+                    let ssyc = ssy.clone();
+                    let evtc = event_channel.clone();
+                    tokio::spawn(async move {
+                        Self::handle_incoming_connection(ssyc,stream,remote, evtc).await
+                    });
+                }
+                _ = tokio::time::sleep(tokio::time::Duration::from_millis(JOB_ITERATION_INTERVAL_MS)) => {
+                    continue;
+                }
+            }
+        }
+    }
+
+    pub fn start(
         self,
         command_channel: Receiver<NetworkCommand>,
         event_channel: Sender<NetworkEvent>,
         rt: &mut tokio::runtime::Runtime,
-    ) -> CoreResult<()> {
-        let this = self.to_sync();
-        start_backend_job!(
-            this,
-            command_channel,
-            event_channel,
-            NetworkDomain::job_network_command_processing,
-            rt,
-            "network command processing job has failed"
-        );
-        start_backend_job!(
-            this,
-            command_channel,
-            event_channel,
-            NetworkDomain::job_network_listener,
-            rt,
-            "network listener job has failed"
-        );
+    ) -> CoreResult<JoinHandle<CoreResult<()>>> {
+        let handle = rt.spawn(async { self.run(command_channel, event_channel).await });
         log::info!("Network domain has been started");
-        Ok(())
+        Ok(handle)
     }
 }

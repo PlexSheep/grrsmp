@@ -1550,6 +1550,7 @@ dependencies = [
  "env_logger",
  "gtk4",
  "log",
+ "sremp-client",
  "sremp-core",
  "tokio",
 ]

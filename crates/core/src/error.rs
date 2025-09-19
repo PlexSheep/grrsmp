@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use thiserror::Error;
 
-use crate::net::{NetworkCommand, NetworkEvent};
+use crate::domain::{NetworkCommand, NetworkEvent};
 
 pub type CoreResult<T> = std::result::Result<T, CoreError>;
 
