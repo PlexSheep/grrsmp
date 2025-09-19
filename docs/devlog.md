@@ -14,6 +14,22 @@ project.
 Also, since I'm a night person, I will count sessions continuing into the next
 day as part of the previous one. It's just more convenient that way.
 
+## 2025-09-19 (plexsheep)
+
+### Progress
+
+- Thought about the software architecture. What we have is crap and makes deadlocks and bugs easy.
+
+### Decisions
+
+- Decided on the 3 domain layout: Network domain, Application domain, Ui Domain.
+- The domains communicate with specific interfaces only: Commands and events. Commands go down and events go up.
+- Application domain goes into a client crate. All clients may use the client domain and simply program another Ui domain, as clients mostly need to do the same.
+
+### Notes
+
+- I did the refactoring of client and core. No idea how to implement the system with the ui domain though.
+
 ## 2025-09-16 (plexsheep)
 
 ### Progress
